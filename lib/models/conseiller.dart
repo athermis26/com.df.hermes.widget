@@ -1,4 +1,4 @@
-enum ProfilConseiller { callCenter, agence, superviseur }
+enum ProfilConseiller { callCenter, agence, digital, superviseur }
 
 enum StatutConseiller { disponible, enTraitement, pause }
 

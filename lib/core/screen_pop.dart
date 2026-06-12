@@ -52,7 +52,7 @@ class ScreenPop {
       if (accepted == true) {
         ClientSelection.instance.select(client);
         ConseillerState.instance.demarrerPriseEnCharge();
-        PanelNav.instance.goTo(0);
+        PanelNav.instance.reset();
       }
     } finally {
       _open = false;

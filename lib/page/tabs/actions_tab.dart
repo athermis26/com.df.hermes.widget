@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import '../../core/app_icons.dart';
 import '../../core/client_selection.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/session.dart';
 import '../../mock/mock_actions.dart';
-import '../../mock/mock_data.dart';
 import '../../models/client.dart';
 import '../../models/conseiller.dart';
 import '../../models/quick_action.dart';
@@ -17,7 +17,8 @@ class ActionsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profil = mockConseiller.profil;
+    final profil = Session.instance.current.value?.profil ??
+        ProfilConseiller.callCenter;
     final actions =
         mockActions.where((a) => a.allowedProfils.contains(profil)).toList();
 
@@ -89,6 +90,8 @@ class _ContextBar extends StatelessWidget {
           return 'Call Center';
         case ProfilConseiller.agence:
           return 'Agence';
+        case ProfilConseiller.digital:
+          return 'Digital';
         case ProfilConseiller.superviseur:
           return 'Superviseur';
       }

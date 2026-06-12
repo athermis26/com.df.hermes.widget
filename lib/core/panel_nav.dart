@@ -1,13 +1,34 @@
 import 'package:flutter/foundation.dart';
 
-/// Permet aux onglets de demander le passage à un autre onglet
-/// (ex: clic sur une notification → ouvre l'onglet Recherche/Vue 360).
+/// Routes possibles dans le panneau (hors écran de login).
+/// La Vue 360 n'est pas une route à part : elle s'affiche dans la route
+/// `file` quand un ticket est sélectionné (TicketSelection.current != null).
+enum PanelRoute { file, assistant }
+
+/// Navigation en pile pour le panneau. Plus de bottom-nav : on push/pop
+/// au besoin (Assistant ouvert depuis une card ou depuis la Vue 360).
 class PanelNav {
   PanelNav._();
   static final instance = PanelNav._();
 
-  /// 0 Recherche/Vue360 · 1 IA · 2 Actions · 3 Notifs
-  final ValueNotifier<int> tabIndex = ValueNotifier<int>(0);
+  final ValueNotifier<List<PanelRoute>> stack =
+      ValueNotifier<List<PanelRoute>>([PanelRoute.file]);
 
-  void goTo(int i) => tabIndex.value = i;
+  PanelRoute get current => stack.value.last;
+  bool get canPop => stack.value.length > 1;
+
+  void push(PanelRoute r) {
+    if (current == r) return;
+    stack.value = [...stack.value, r];
+  }
+
+  bool pop() {
+    if (!canPop) return false;
+    stack.value = stack.value.sublist(0, stack.value.length - 1);
+    return true;
+  }
+
+  void reset() {
+    stack.value = [PanelRoute.file];
+  }
 }

@@ -5,12 +5,36 @@ import '../models/notification.dart';
 /// ─────────────────────────────────────────────────────────────
 /// Conseiller connecté (mock — pas de SSO/AD pour le POC)
 /// ─────────────────────────────────────────────────────────────
+/// Conseiller par défaut (rétro-compat). La session courante est dans
+/// `Session.instance.current` — c'est le conseiller choisi à la connexion.
 const Conseiller mockConseiller = Conseiller(
   id: 'AGT-00421',
   nom: 'Yaël AHODAN',
   profil: ProfilConseiller.callCenter,
   agence: 'Plateau – CC Abidjan',
 );
+
+/// 3 conseillers démo (un par profil) — proposés sur l'écran de connexion.
+const List<Conseiller> mockConseillers = [
+  Conseiller(
+    id: 'AGT-00421',
+    nom: 'Yaël AHODAN',
+    profil: ProfilConseiller.callCenter,
+    agence: 'Plateau – CC Abidjan',
+  ),
+  Conseiller(
+    id: 'AGT-00132',
+    nom: 'Yao N\'GUESSAN',
+    profil: ProfilConseiller.agence,
+    agence: 'Cocody – Agence II Plateaux',
+  ),
+  Conseiller(
+    id: 'AGT-00777',
+    nom: 'Fatou DIOMANDÉ',
+    profil: ProfilConseiller.digital,
+    agence: 'Hub Digital – Abidjan',
+  ),
+];
 
 /// ─────────────────────────────────────────────────────────────
 /// File d'attente agence (mock)

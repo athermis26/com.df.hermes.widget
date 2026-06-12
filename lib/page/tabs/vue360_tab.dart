@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../../core/ai_wizard_trigger.dart';
 import '../../core/app_icons.dart';
+import '../../core/conseiller_state.dart';
 import '../../core/formatters.dart';
+import '../../core/panel_nav.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/ticket_selection.dart';
 import '../../models/client.dart';
+import '../../models/ticket.dart';
 import '../../widgets/hi.dart';
+import '../../widgets/motif_actions_sheet.dart';
+import '../../widgets/transfer_sheet.dart';
 
 /// Mini Vue 360 — fiche client compacte, scrollable, cartes repliables.
 class Vue360Tab extends StatelessWidget {
@@ -23,6 +30,18 @@ class Vue360Tab extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _ClientBar(client: client, onBack: onBack),
+        ValueListenableBuilder<Ticket?>(
+          valueListenable: TicketSelection.instance.current,
+          builder: (_, ticket, _) {
+            if (ticket == null) return const SizedBox.shrink();
+            return Column(
+              children: [
+                _TicketBanner(ticket: ticket),
+                _Vue360QuickActions(ticket: ticket),
+              ],
+            );
+          },
+        ),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
@@ -38,7 +57,6 @@ class Vue360Tab extends StatelessWidget {
             ],
           ),
         ),
-        _OpenInHermesButton(clientId: client.id),
       ],
     );
   }
@@ -109,6 +127,202 @@ class _ClientBar extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+// ─── Barre d'actions rapides ─────────────────────────────────────
+
+class _Vue360QuickActions extends StatelessWidget {
+  final Ticket ticket;
+  const _Vue360QuickActions({required this.ticket});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+      decoration: const BoxDecoration(
+        color: AppColors.dark,
+        border: Border(bottom: BorderSide(color: Colors.white10)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _MiniBtn(
+              icon: AppIcons.sparkle,
+              label: 'Assistant',
+              color: AppColors.primary,
+              onTap: () => PanelNav.instance.push(PanelRoute.assistant),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: _MiniBtn(
+              icon: AppIcons.createCase,
+              label: 'Créer case',
+              color: AppColors.info,
+              onTap: () {
+                PanelNav.instance.push(PanelRoute.assistant);
+                AiWizardTrigger.instance.requestCreateCase();
+              },
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: _MiniBtn(
+              icon: AppIcons.transferred,
+              label: 'Transférer',
+              color: AppColors.warning,
+              onTap: () => TransferSheet.show(context, ticket),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: _MiniBtn(
+              icon: AppIcons.tabActions,
+              label: 'Actions',
+              color: AppColors.success,
+              onTap: () => MotifActionsSheet.show(context, ticket),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniBtn extends StatelessWidget {
+  final AppIcon icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  const _MiniBtn({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: color.withValues(alpha: 0.14),
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Hi(icon, size: 14, color: color),
+              const SizedBox(height: 3),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Bandeau ticket en cours ─────────────────────────────────────
+
+class _TicketBanner extends StatelessWidget {
+  final Ticket ticket;
+  const _TicketBanner({required this.ticket});
+
+  ({Color color, String label}) _prioMeta(TicketPriority p) {
+    switch (p) {
+      case TicketPriority.urgent:
+        return (color: AppColors.danger, label: 'Urgent');
+      case TicketPriority.eleve:
+        return (color: AppColors.warning, label: 'Élevée');
+      case TicketPriority.normal:
+        return (color: AppColors.info, label: 'Normale');
+      case TicketPriority.faible:
+        return (color: AppColors.textMuted, label: 'Faible');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final prio = _prioMeta(ticket.priority);
+    final isActive =
+        ConseillerState.instance.activeTicket.value?.id == ticket.id;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
+      decoration: const BoxDecoration(
+        color: AppColors.dark,
+        border: Border(bottom: BorderSide(color: Colors.white10)),
+      ),
+      child: Row(
+        children: [
+          Hi(
+            isActive ? AppIcons.statusBusy : AppIcons.tabActions,
+            size: 13,
+            color: isActive ? AppColors.warning : AppColors.primary,
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        ticket.motif.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: AppColors.textLight,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    _PrioMini(label: prio.label, color: prio.color),
+                  ],
+                ),
+                Text(
+                  '${ticket.id} · ${ticket.corbeille}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PrioMini extends StatelessWidget {
+  final String label;
+  final Color color;
+  const _PrioMini({required this.label, required this.color});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Text(label,
+          style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -649,59 +863,6 @@ class _FacturationCard extends StatelessWidget {
               valueBold: true,
             ),
         ],
-      ),
-    );
-  }
-}
-
-// ─── Bouton "Ouvrir HERMES" ──────────────────────────────────────
-
-class _OpenInHermesButton extends StatelessWidget {
-  final String clientId;
-  const _OpenInHermesButton({required this.clientId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(10, 6, 10, 10),
-      decoration: const BoxDecoration(
-        color: AppColors.dark,
-        border: Border(top: BorderSide(color: Colors.white10)),
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        height: 38,
-        child: ElevatedButton.icon(
-          onPressed: () {
-            final url = '/client/$clientId/vue360';
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                duration: const Duration(seconds: 3),
-                backgroundColor: AppColors.darkSurface,
-                content: Row(
-                  children: [
-                    const Hi(AppIcons.openExternal, color: AppColors.primary, size: 16),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Direction HERMES web : $url',
-                        style: const TextStyle(color: AppColors.textLight, fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-          ),
-          icon: const Hi(AppIcons.openExternal, size: 14, color: Colors.white),
-          label: const Text('Voir le dossier complet sur HERMES'),
-        ),
       ),
     );
   }

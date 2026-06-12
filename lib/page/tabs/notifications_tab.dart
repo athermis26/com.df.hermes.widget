@@ -51,7 +51,7 @@ class _NotificationsTabState extends State<NotificationsTab> {
       try {
         final c = mockClients.firstWhere((c) => c.id == n.clientIdLie);
         ClientSelection.instance.select(c);
-        PanelNav.instance.goTo(0);
+        PanelNav.instance.reset();
       } catch (_) {}
     }
   }
@@ -62,7 +62,7 @@ class _NotificationsTabState extends State<NotificationsTab> {
     setState(() => _fileCount--);
     ClientSelection.instance.select(pick);
     ConseillerState.instance.demarrerPriseEnCharge();
-    PanelNav.instance.goTo(0);
+    PanelNav.instance.reset();
   }
 
   @override

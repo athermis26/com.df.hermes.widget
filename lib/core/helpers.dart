@@ -38,6 +38,7 @@ class Helpers {
           MenuItem.separator(),
           MenuItem(key: 'simulate_call', label: 'Simuler un appel entrant'),
           MenuItem.separator(),
+          MenuItem(key: 'switch_profile', label: 'Changer de profil'),
           MenuItem(key: 'quit_app', label: 'Fermer complètement'),
         ],
       ),

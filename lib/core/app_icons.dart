@@ -94,4 +94,21 @@ class AppIcons {
   // ── Appel entrant ───────────────────────────────────────────
   static const AppIcon callAccept = HugeIcons.strokeRoundedCall;
   static const AppIcon callReject = HugeIcons.strokeRoundedCallEnd01;
+
+  // ── Broadcast ───────────────────────────────────────────────
+  static const AppIcon megaphone = HugeIcons.strokeRoundedMegaphone02;
+
+  // ── Menus / actions globales ────────────────────────────────
+  static const AppIcon moreVertical = HugeIcons.strokeRoundedMoreVertical;
+  static const AppIcon logout = HugeIcons.strokeRoundedLogout03;
+  static const AppIcon switchUser = HugeIcons.strokeRoundedExchange01;
+  static const AppIcon createCase = HugeIcons.strokeRoundedFilePlus;
+
+  // ── Sources Digital / canaux ─────────────────────────────────
+  static const AppIcon sourcePhone = HugeIcons.strokeRoundedCall02;
+  static const AppIcon sourceEmail = HugeIcons.strokeRoundedMail01;
+  static const AppIcon sourceWhatsapp = HugeIcons.strokeRoundedWhatsapp;
+  static const AppIcon sourceFacebook = HugeIcons.strokeRoundedFacebook01;
+  static const AppIcon sourceTwitter = HugeIcons.strokeRoundedTwitter;
+  static const AppIcon sourceAccueil = HugeIcons.strokeRoundedBuilding01;
 }

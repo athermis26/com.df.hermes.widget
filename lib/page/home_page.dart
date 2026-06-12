@@ -4,10 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../core/conseiller_state.dart';
 import '../core/screen_pop.dart';
+import '../core/session.dart';
+import '../core/ticket_selection.dart';
 import '../core/window_controller.dart';
+import '../models/conseiller.dart';
 import '../widgets/bubble_view.dart';
 import '../widgets/panel_view.dart';
+import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -60,6 +65,14 @@ class _HomePageState extends State<HomePage>
         if (!mounted) return;
         await ScreenPop.instance.simulateIncomingCall(context);
         break;
+      case 'switch_profile':
+        // Déconnexion → repasse sur l'écran de login
+        ConseillerState.instance.setStatut(StatutConseiller.disponible);
+        TicketSelection.instance.clear();
+        Session.instance.logout();
+        await windowManager.show();
+        await windowManager.focus();
+        break;
       case 'quit_app':
         await trayManager.destroy();
         await windowManager.setPreventClose(false);
@@ -75,18 +88,31 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<WindowMode>(
-      valueListenable: HermesWindow.instance.mode,
-      builder: (_, mode, child) {
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            switchInCurve: Curves.easeOutCubic,
-            child: mode == WindowMode.bubble
-                ? const BubbleView(key: ValueKey('bubble'))
-                : const PanelView(key: ValueKey('panel')),
-          ),
+    return ValueListenableBuilder<Conseiller?>(
+      valueListenable: Session.instance.current,
+      builder: (_, conseiller, _) {
+        // Pas connecté → écran de login (toujours en mode panneau)
+        if (conseiller == null) {
+          return Scaffold(
+            backgroundColor: Colors.transparent,
+            body: const LoginPage(),
+          );
+        }
+        // Connecté → bascule bulle / panneau classique
+        return ValueListenableBuilder<WindowMode>(
+          valueListenable: HermesWindow.instance.mode,
+          builder: (_, mode, _) {
+            return Scaffold(
+              backgroundColor: Colors.transparent,
+              body: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                switchInCurve: Curves.easeOutCubic,
+                child: mode == WindowMode.bubble
+                    ? const BubbleView(key: ValueKey('bubble'))
+                    : const PanelView(key: ValueKey('panel')),
+              ),
+            );
+          },
         );
       },
     );
