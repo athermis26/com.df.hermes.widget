@@ -22,6 +22,7 @@ import 'hi.dart';
 import 'notifications_popover.dart';
 import 'persistent_search_bar.dart';
 import 'search_results_overlay.dart';
+import '../core/theme/theme_controller.dart';
 
 class PanelView extends StatefulWidget {
   const PanelView({super.key});
@@ -83,7 +84,7 @@ class _PanelViewState extends State<PanelView> {
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.dark,
+          color: P.bg,
           border: Border.all(color: Colors.white12),
         ),
         child: ValueListenableBuilder<Client?>(
@@ -233,6 +234,15 @@ class _HeaderRow extends StatelessWidget {
                 );
               },
             ),
+            // Toggle thème sombre / clair
+            ValueListenableBuilder<bool>(
+              valueListenable: ThemeController.instance.isDark,
+              builder: (_, isDark, _) => _IconBtn(
+                icon: isDark ? AppIcons.themeLight : AppIcons.themeDark,
+                tooltip: isDark ? 'Passer en thème clair' : 'Passer en thème sombre',
+                onTap: ThemeController.instance.toggle,
+              ),
+            ),
             // Cloche notifications avec badge
             _BellButton(bellKey: bellKey, onTap: onBellTap),
             // Simuler appel entrant
@@ -244,7 +254,7 @@ class _HeaderRow extends StatelessWidget {
             // Menu ⋮
             PopupMenuButton<String>(
               tooltip: 'Plus d\'options',
-              color: AppColors.darkSurface,
+              color: P.surface,
               icon: const Hi(AppIcons.moreVertical, color: Colors.white, size: 18),
               padding: const EdgeInsets.all(6),
               onSelected: (v) {
@@ -261,35 +271,35 @@ class _HeaderRow extends StatelessWidget {
                 }
               },
               itemBuilder: (_) => [
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'dispo',
                   height: 36,
                   child: Row(children: [
                     Hi(AppIcons.statusOk, size: 14, color: AppColors.success),
                     SizedBox(width: 8),
                     Text('Je suis dispo',
-                        style: TextStyle(color: AppColors.textLight, fontSize: 12)),
+                        style: TextStyle(color: P.text, fontSize: 12)),
                   ]),
                 ),
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'pause',
                   height: 36,
                   child: Row(children: [
-                    Hi(AppIcons.statusPause, size: 14, color: AppColors.textMuted),
+                    Hi(AppIcons.statusPause, size: 14, color: P.muted),
                     SizedBox(width: 8),
                     Text('Je prends une pause',
-                        style: TextStyle(color: AppColors.textLight, fontSize: 12)),
+                        style: TextStyle(color: P.text, fontSize: 12)),
                   ]),
                 ),
                 const PopupMenuDivider(),
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'switch',
                   height: 36,
                   child: Row(children: [
                     Hi(AppIcons.switchUser, size: 14, color: AppColors.primary),
                     SizedBox(width: 8),
                     Text('Changer de profil',
-                        style: TextStyle(color: AppColors.textLight, fontSize: 12)),
+                        style: TextStyle(color: P.text, fontSize: 12)),
                   ]),
                 ),
               ],
@@ -361,7 +371,7 @@ class _ConseillerLine extends StatelessWidget {
       case StatutConseiller.enTraitement:
         return (color: AppColors.warning, label: 'En ligne');
       case StatutConseiller.pause:
-        return (color: AppColors.textMuted, label: 'En pause');
+        return (color: P.muted, label: 'En pause');
     }
   }
 

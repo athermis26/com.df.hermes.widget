@@ -9,6 +9,7 @@ import '../../core/theme/app_colors.dart';
 import '../../models/client.dart';
 import '../../repositories/client_repository.dart';
 import '../../widgets/hi.dart';
+import '../../core/theme/theme_controller.dart';
 
 class SearchTab extends StatefulWidget {
   const SearchTab({super.key});
@@ -161,24 +162,24 @@ class _SearchField extends StatelessWidget {
         textInputAction: TextInputAction.search,
         onChanged: onChanged,
         onSubmitted: onSubmitted,
-        style: const TextStyle(color: AppColors.textLight, fontSize: 13),
+        style: TextStyle(color: P.text, fontSize: 13),
         decoration: InputDecoration(
           isDense: true,
           hintText: 'Qui cherchez-vous ?',
-          hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
-          prefixIcon: const Padding(
+          hintStyle: TextStyle(color: P.muted, fontSize: 12),
+          prefixIcon: Padding(
             padding: EdgeInsets.all(10),
-            child: Hi(AppIcons.tabSearch, size: 16, color: AppColors.textMuted),
+            child: Hi(AppIcons.tabSearch, size: 16, color: P.muted),
           ),
           prefixIconConstraints: const BoxConstraints(minWidth: 36, minHeight: 36),
           suffixIcon: controller.text.isEmpty
               ? null
               : IconButton(
-                  icon: const Hi(AppIcons.close, size: 14, color: AppColors.textMuted),
+                  icon: Hi(AppIcons.close, size: 14, color: P.muted),
                   onPressed: onClear,
                 ),
           filled: true,
-          fillColor: AppColors.darkSurface,
+          fillColor: P.surface,
           contentPadding: const EdgeInsets.symmetric(vertical: 10),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -198,14 +199,14 @@ class _IdleHint extends StatelessWidget {
   const _IdleHint();
   @override
   Widget build(BuildContext context) {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Vous pouvez chercher par :',
-            style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+            style: TextStyle(color: P.muted, fontSize: 11),
           ),
           SizedBox(height: 10),
           _HintLine(icon: AppIcons.phone, label: 'Son numéro (ex : 07 07 12 34 56)'),
@@ -230,7 +231,7 @@ class _HintLine extends StatelessWidget {
         children: [
           Hi(icon, size: 14, color: AppColors.primary),
           const SizedBox(width: 10),
-          Text(label, style: const TextStyle(color: AppColors.textLight, fontSize: 12)),
+          Text(label, style: TextStyle(color: P.text, fontSize: 12)),
         ],
       ),
     );
@@ -248,7 +249,7 @@ class _SkeletonList extends StatelessWidget {
       itemBuilder: (_, _) => Container(
         height: 56,
         decoration: BoxDecoration(
-          color: AppColors.darkSurface,
+          color: P.surface,
           borderRadius: BorderRadius.circular(10),
         ),
       ),
@@ -267,12 +268,12 @@ class _EmptyResults extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Hi(AppIcons.searchOff, size: 38, color: AppColors.textMuted),
+            Hi(AppIcons.searchOff, size: 38, color: P.muted),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Personne ne correspond',
               style: TextStyle(
-                color: AppColors.textLight,
+                color: P.text,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
@@ -280,7 +281,7 @@ class _EmptyResults extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'On n\'a rien trouvé pour « $query »',
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+              style: TextStyle(color: P.muted, fontSize: 11),
             ),
           ],
         ),
@@ -322,7 +323,7 @@ class _RestrictionView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 11.5, height: 1.4),
+              style: TextStyle(color: P.muted, fontSize: 11.5, height: 1.4),
             ),
           ],
         ),
@@ -345,7 +346,7 @@ class _ResultsList extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(14, 4, 14, 4),
           child: Text(
             '${results.length} personne${results.length > 1 ? 's' : ''} trouvée${results.length > 1 ? 's' : ''}',
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+            style: TextStyle(color: P.muted, fontSize: 11),
           ),
         ),
         Expanded(
@@ -369,7 +370,7 @@ class _ResultTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.darkSurface,
+      color: P.surface,
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         onTap: onTap,
@@ -402,8 +403,8 @@ class _ResultTile extends StatelessWidget {
                             client.nom,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.textLight,
+                            style: TextStyle(
+                              color: P.text,
                               fontSize: 12.5,
                               fontWeight: FontWeight.w600,
                             ),
@@ -418,7 +419,7 @@ class _ResultTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       client.numeroPrincipal,
-                      style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                      style: TextStyle(color: P.muted, fontSize: 10.5),
                     ),
                     const SizedBox(height: 4),
                     Row(
@@ -431,7 +432,7 @@ class _ResultTile extends StatelessWidget {
                   ],
                 ),
               ),
-              const Hi(AppIcons.chevronRight, size: 16, color: AppColors.textMuted),
+              Hi(AppIcons.chevronRight, size: 16, color: P.muted),
             ],
           ),
         ),

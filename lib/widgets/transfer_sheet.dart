@@ -5,6 +5,7 @@ import '../core/theme/app_colors.dart';
 import '../mock/mock_tickets.dart';
 import '../models/ticket.dart';
 import 'hi.dart';
+import '../core/theme/theme_controller.dart';
 
 /// Bottom sheet de transfert d'un ticket vers une autre corbeille.
 class TransferSheet extends StatelessWidget {
@@ -24,8 +25,8 @@ class TransferSheet extends StatelessWidget {
     final cibles =
         mockCorbeillesCibles.where((c) => c != ticket.corbeille).toList();
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.dark,
+      decoration: BoxDecoration(
+        color: P.bg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
         border: Border(
           top: BorderSide(color: Colors.white12),
@@ -48,13 +49,13 @@ class TransferSheet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Row(
-            children: const [
+            children: [
               Hi(AppIcons.transferred, color: AppColors.info, size: 18),
               SizedBox(width: 8),
               Text(
                 'Transférer ce ticket',
                 style: TextStyle(
-                    color: AppColors.textLight,
+                    color: P.text,
                     fontSize: 13,
                     fontWeight: FontWeight.w700),
               ),
@@ -65,7 +66,7 @@ class TransferSheet extends StatelessWidget {
             padding: const EdgeInsets.only(left: 26),
             child: Text(
               'Actuellement dans : ${ticket.corbeille}',
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+              style: TextStyle(color: P.muted, fontSize: 10.5),
             ),
           ),
           const SizedBox(height: 10),
@@ -73,7 +74,7 @@ class TransferSheet extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: Material(
-                color: AppColors.darkSurface,
+                color: P.surface,
                 borderRadius: BorderRadius.circular(8),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(8),
@@ -89,12 +90,12 @@ class TransferSheet extends StatelessWidget {
                         Expanded(
                           child: Text(
                             c,
-                            style: const TextStyle(
-                                color: AppColors.textLight, fontSize: 12),
+                            style: TextStyle(
+                                color: P.text, fontSize: 12),
                           ),
                         ),
-                        const Hi(AppIcons.chevronRight,
-                            size: 14, color: AppColors.textMuted),
+                        Hi(AppIcons.chevronRight,
+                            size: 14, color: P.muted),
                       ],
                     ),
                   ),
@@ -105,7 +106,7 @@ class TransferSheet extends StatelessWidget {
           OutlinedButton(
             onPressed: () => Navigator.pop(context),
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.textMuted,
+              foregroundColor: P.muted,
               side: const BorderSide(color: Colors.white24),
             ),
             child: const Text('Annuler', style: TextStyle(fontSize: 12)),
@@ -119,7 +120,7 @@ class TransferSheet extends StatelessWidget {
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: AppColors.darkSurface,
+        backgroundColor: P.surface,
         content: Row(
           children: [
             const Hi(AppIcons.checkCircle, color: AppColors.success, size: 16),
@@ -127,7 +128,7 @@ class TransferSheet extends StatelessWidget {
             Expanded(
               child: Text(
                 'Ticket ${ticket.id} transféré vers « $cible ».',
-                style: const TextStyle(color: AppColors.textLight, fontSize: 12),
+                style: TextStyle(color: P.text, fontSize: 12),
               ),
             ),
           ],

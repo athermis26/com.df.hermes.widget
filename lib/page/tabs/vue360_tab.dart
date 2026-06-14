@@ -12,6 +12,7 @@ import '../../models/ticket.dart';
 import '../../widgets/hi.dart';
 import '../../widgets/motif_actions_sheet.dart';
 import '../../widgets/transfer_sheet.dart';
+import '../../core/theme/theme_controller.dart';
 
 /// Mini Vue 360 — fiche client compacte, scrollable, cartes repliables.
 class Vue360Tab extends StatelessWidget {
@@ -74,15 +75,15 @@ class _ClientBar extends StatelessWidget {
     return Container(
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: const BoxDecoration(
-        color: AppColors.darkSurface,
+      decoration: BoxDecoration(
+        color: P.surface,
         border: Border(bottom: BorderSide(color: Colors.white10)),
       ),
       child: Row(
         children: [
           IconButton(
             tooltip: 'Retour',
-            icon: const Hi(AppIcons.back, color: AppColors.textLight, size: 18),
+            icon: Hi(AppIcons.back, color: P.text, size: 18),
             onPressed: onBack,
           ),
           CircleAvatar(
@@ -103,13 +104,13 @@ class _ClientBar extends StatelessWidget {
                   client.nom,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: AppColors.textLight, fontSize: 13, fontWeight: FontWeight.w700),
+                  style: TextStyle(color: P.text, fontSize: 13, fontWeight: FontWeight.w700),
                 ),
                 Text(
                   '${client.type} • ${client.segment} • ${client.numeroPrincipal}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+                  style: TextStyle(color: P.muted, fontSize: 10),
                 ),
               ],
             ),
@@ -141,8 +142,8 @@ class _Vue360QuickActions extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-      decoration: const BoxDecoration(
-        color: AppColors.dark,
+      decoration: BoxDecoration(
+        color: P.bg,
         border: Border(bottom: BorderSide(color: Colors.white10)),
       ),
       child: Row(
@@ -248,7 +249,7 @@ class _TicketBanner extends StatelessWidget {
       case TicketPriority.normal:
         return (color: AppColors.info, label: 'Normale');
       case TicketPriority.faible:
-        return (color: AppColors.textMuted, label: 'Faible');
+        return (color: P.muted, label: 'Faible');
     }
   }
 
@@ -259,8 +260,8 @@ class _TicketBanner extends StatelessWidget {
         ConseillerState.instance.activeTicket.value?.id == ticket.id;
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
-      decoration: const BoxDecoration(
-        color: AppColors.dark,
+      decoration: BoxDecoration(
+        color: P.bg,
         border: Border(bottom: BorderSide(color: Colors.white10)),
       ),
       child: Row(
@@ -282,8 +283,8 @@ class _TicketBanner extends StatelessWidget {
                         ticket.motif.label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.textLight,
+                        style: TextStyle(
+                          color: P.text,
                           fontSize: 11.5,
                           fontWeight: FontWeight.w700,
                         ),
@@ -297,7 +298,7 @@ class _TicketBanner extends StatelessWidget {
                   '${ticket.id} · ${ticket.corbeille}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+                  style: TextStyle(color: P.muted, fontSize: 9.5),
                 ),
               ],
             ),
@@ -408,7 +409,7 @@ class _SectionState extends State<_Section> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: P.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.white10),
       ),
@@ -427,8 +428,8 @@ class _SectionState extends State<_Section> {
                   Expanded(
                     child: Text(
                       widget.title,
-                      style: const TextStyle(
-                        color: AppColors.textLight,
+                      style: TextStyle(
+                        color: P.text,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.2,
@@ -439,7 +440,7 @@ class _SectionState extends State<_Section> {
                   Hi(
                     _open ? AppIcons.chevronUp : AppIcons.chevronDown,
                     size: 14,
-                    color: AppColors.textMuted,
+                    color: P.muted,
                   ),
                 ],
               ),
@@ -502,7 +503,7 @@ class _ScoringCard extends StatelessWidget {
       case 'Risque':
         return AppColors.danger;
       default:
-        return AppColors.textMuted;
+        return P.muted;
     }
   }
 
@@ -511,11 +512,11 @@ class _ScoringCard extends StatelessWidget {
       case 'Gold':
         return AppColors.warning;
       case 'Silver':
-        return AppColors.textMuted;
+        return P.muted;
       case 'Bronze':
         return const Color(0xFFCD7F32);
       default:
-        return AppColors.textMuted;
+        return P.muted;
     }
   }
 
@@ -568,7 +569,7 @@ class _ScoringBadge extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+          Text(label, style: TextStyle(color: P.muted, fontSize: 9.5)),
           const SizedBox(height: 1),
           Text(value, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w700)),
         ],
@@ -591,7 +592,7 @@ class _Gauge extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5))),
+            Expanded(child: Text(label, style: TextStyle(color: P.muted, fontSize: 9.5))),
             Text(
               '${displayValue ?? value}',
               style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w700),
@@ -643,7 +644,7 @@ class _ConsommationCard extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              const Text('Internet', style: TextStyle(color: AppColors.textMuted, fontSize: 10.5)),
+              Text('Internet', style: TextStyle(color: P.muted, fontSize: 10.5)),
               const Spacer(),
               Text(
                 '${formatGo(conso.dataRestanteGo)} sur ${formatGo(conso.dataTotaleGo)}',
@@ -665,12 +666,12 @@ class _ConsommationCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Valable jusqu\'au ${formatDate(conso.dataExpiration!)}',
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+              style: TextStyle(color: P.muted, fontSize: 9.5),
             ),
           ],
           const SizedBox(height: 10),
           if (conso.passActifs.isNotEmpty) ...[
-            const Text('Pass actifs', style: TextStyle(color: AppColors.textMuted, fontSize: 10.5)),
+            Text('Pass actifs', style: TextStyle(color: P.muted, fontSize: 10.5)),
             const SizedBox(height: 4),
             Wrap(
               spacing: 4,
@@ -708,7 +709,7 @@ class _MiniBarChart extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Sa conso ce mois-ci', style: TextStyle(color: AppColors.textMuted, fontSize: 10.5)),
+        Text('Sa conso ce mois-ci', style: TextStyle(color: P.muted, fontSize: 10.5)),
         const SizedBox(height: 6),
         SizedBox(
           height: 50,
@@ -736,7 +737,7 @@ class _MiniBarChart extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         '${entries[i].key} • ${formatGo(entries[i].value)}',
-                        style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+                        style: TextStyle(color: P.muted, fontSize: 9),
                       ),
                     ],
                   ),
@@ -784,7 +785,7 @@ class _ContratsCard extends StatelessWidget {
       case 'Résilié':
         return AppColors.danger;
       default:
-        return AppColors.textMuted;
+        return P.muted;
     }
   }
 
@@ -804,8 +805,8 @@ class _ContratsCard extends StatelessWidget {
               shape: const Border(),
               dense: true,
               visualDensity: VisualDensity.compact,
-              iconColor: AppColors.textMuted,
-              collapsedIconColor: AppColors.textMuted,
+              iconColor: P.muted,
+              collapsedIconColor: P.muted,
               title: Row(
                 children: [
                   Hi(_iconFor(contrats[i].service), size: 16, color: AppColors.primary),
@@ -813,7 +814,7 @@ class _ContratsCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       contrats[i].service,
-                      style: const TextStyle(color: AppColors.textLight, fontSize: 12, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: P.text, fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ),
                   _MiniBadge(label: contrats[i].statut, color: _statutColor(contrats[i].statut)),
@@ -821,7 +822,7 @@ class _ContratsCard extends StatelessWidget {
               ),
               subtitle: Text(
                 contrats[i].offre,
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                style: TextStyle(color: P.muted, fontSize: 10.5),
               ),
               children: [
                 _KvLine(k: 'Référence', v: contrats[i].id),
@@ -885,13 +886,13 @@ class _KvLine extends StatelessWidget {
         children: [
           SizedBox(
             width: 110,
-            child: Text(k, style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5)),
+            child: Text(k, style: TextStyle(color: P.muted, fontSize: 10.5)),
           ),
           Expanded(
             child: Text(
               v,
               style: TextStyle(
-                color: valueColor ?? AppColors.textLight,
+                color: valueColor ?? P.text,
                 fontSize: 11.5,
                 fontWeight: valueBold ? FontWeight.w700 : FontWeight.w500,
               ),
@@ -918,9 +919,9 @@ class _Tile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5)),
+          Text(label, style: TextStyle(color: P.muted, fontSize: 9.5)),
           const SizedBox(height: 2),
-          Text(value, style: const TextStyle(color: AppColors.textLight, fontSize: 12, fontWeight: FontWeight.w700)),
+          Text(value, style: TextStyle(color: P.text, fontSize: 12, fontWeight: FontWeight.w700)),
         ],
       ),
     );

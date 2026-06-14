@@ -103,6 +103,8 @@ class AppIcons {
   static const AppIcon logout = HugeIcons.strokeRoundedLogout03;
   static const AppIcon switchUser = HugeIcons.strokeRoundedExchange01;
   static const AppIcon createCase = HugeIcons.strokeRoundedFilePlus;
+  static const AppIcon themeDark = HugeIcons.strokeRoundedMoon02;
+  static const AppIcon themeLight = HugeIcons.strokeRoundedSun02;
 
   // ── Sources Digital / canaux ─────────────────────────────────
   static const AppIcon sourcePhone = HugeIcons.strokeRoundedCall02;

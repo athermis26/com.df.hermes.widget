@@ -6,6 +6,7 @@ import '../core/theme/app_colors.dart';
 import '../core/window_controller.dart';
 import '../mock/mock_data.dart';
 import 'hi.dart';
+import '../core/theme/theme_controller.dart';
 
 class BubbleView extends StatelessWidget {
   const BubbleView({super.key});
@@ -48,7 +49,7 @@ class BubbleView extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.danger,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.dark, width: 2),
+                    border: Border.all(color: P.bg, width: 2),
                   ),
                   child: Text(
                     '$unread',

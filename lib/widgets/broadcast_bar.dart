@@ -5,6 +5,7 @@ import '../core/theme/app_colors.dart';
 import '../mock/mock_broadcasts.dart';
 import '../models/broadcast.dart';
 import 'hi.dart';
+import '../core/theme/theme_controller.dart';
 
 /// Bande défilante en haut du panneau — pannes, infos générales.
 /// Non intrusive : ~24 px de haut, scroll continu droite→gauche.
@@ -73,8 +74,8 @@ class _BroadcastBarState extends State<BroadcastBar>
       },
       child: Container(
         height: 24,
-        decoration: const BoxDecoration(
-          color: AppColors.dark,
+        decoration: BoxDecoration(
+          color: P.bg,
           border: Border(bottom: BorderSide(color: Colors.white10)),
         ),
         child: Row(
@@ -162,7 +163,7 @@ class _BroadcastItem extends StatelessWidget {
           Text(
             message.text,
             style: TextStyle(
-              color: AppColors.textLight,
+              color: P.text,
               fontSize: 10.5,
               fontWeight: FontWeight.w500,
               height: 1.1,
@@ -179,11 +180,11 @@ class _Separator extends StatelessWidget {
   const _Separator();
   @override
   Widget build(BuildContext context) {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: 14),
       child: Text(
         '•',
-        style: TextStyle(color: AppColors.textMuted, fontSize: 10),
+        style: TextStyle(color: P.muted, fontSize: 10),
       ),
     );
   }

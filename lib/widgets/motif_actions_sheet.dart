@@ -7,6 +7,7 @@ import '../mock/mock_tickets.dart';
 import '../models/ticket.dart';
 import 'action_sheet.dart';
 import 'hi.dart';
+import '../core/theme/theme_controller.dart';
 
 /// Bottom sheet listant les actions pertinentes pour le motif du ticket.
 class MotifActionsSheet extends StatelessWidget {
@@ -26,7 +27,7 @@ class MotifActionsSheet extends StatelessWidget {
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: AppColors.darkSurface,
+        backgroundColor: P.surface,
         duration: const Duration(seconds: 3),
         content: Row(
           children: [
@@ -35,7 +36,7 @@ class MotifActionsSheet extends StatelessWidget {
             Expanded(
               child: Text(
                 'Direction HERMES web : $url',
-                style: const TextStyle(color: AppColors.textLight, fontSize: 12),
+                style: TextStyle(color: P.text, fontSize: 12),
               ),
             ),
           ],
@@ -51,8 +52,8 @@ class MotifActionsSheet extends StatelessWidget {
         mockActions.where((a) => ids.contains(a.id)).toList(growable: false);
 
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.dark,
+      decoration: BoxDecoration(
+        color: P.bg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
         border: Border(
           top: BorderSide(color: Colors.white12),
@@ -81,8 +82,8 @@ class MotifActionsSheet extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Quoi faire pour « ${ticket.motif.label} » ?',
-                  style: const TextStyle(
-                      color: AppColors.textLight,
+                  style: TextStyle(
+                      color: P.text,
                       fontSize: 13,
                       fontWeight: FontWeight.w700),
                 ),
@@ -91,11 +92,11 @@ class MotifActionsSheet extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           if (actions.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 10),
               child: Text(
                 'Aucune action rapide directe pour ce motif.',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 11.5),
+                style: TextStyle(color: P.muted, fontSize: 11.5),
               ),
             )
           else
@@ -103,7 +104,7 @@ class MotifActionsSheet extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 6),
                 child: Material(
-                  color: AppColors.darkSurface,
+                  color: P.surface,
                   borderRadius: BorderRadius.circular(8),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(8),
@@ -131,16 +132,16 @@ class MotifActionsSheet extends StatelessWidget {
                               children: [
                                 Text(
                                   a.label,
-                                  style: const TextStyle(
-                                      color: AppColors.textLight,
+                                  style: TextStyle(
+                                      color: P.text,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   a.description,
-                                  style: const TextStyle(
-                                      color: AppColors.textMuted,
+                                  style: TextStyle(
+                                      color: P.muted,
                                       fontSize: 10.5,
                                       height: 1.3),
                                 ),
@@ -148,8 +149,8 @@ class MotifActionsSheet extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 4),
-                          const Hi(AppIcons.chevronRight,
-                              size: 14, color: AppColors.textMuted),
+                          Hi(AppIcons.chevronRight,
+                              size: 14, color: P.muted),
                         ],
                       ),
                     ),
@@ -185,7 +186,7 @@ class MotifActionsSheet extends StatelessWidget {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             'Voir le dossier complet sur HERMES',
                             style: TextStyle(
@@ -197,7 +198,7 @@ class MotifActionsSheet extends StatelessWidget {
                           Text(
                             'Pour aller plus loin que les actions rapides.',
                             style: TextStyle(
-                                color: AppColors.textMuted,
+                                color: P.muted,
                                 fontSize: 10.5,
                                 height: 1.3),
                           ),

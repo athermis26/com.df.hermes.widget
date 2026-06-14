@@ -14,6 +14,7 @@ import '../../models/ticket.dart';
 import '../../widgets/hi.dart';
 import '../../widgets/motif_actions_sheet.dart';
 import '../../widgets/transfer_sheet.dart';
+import '../../core/theme/theme_controller.dart';
 
 /// Strings et icônes qui varient selon le profil du conseiller.
 class _ProfilUi {
@@ -230,7 +231,7 @@ class _QueueTabState extends State<QueueTab> {
     case TicketSource.facebook:
       return (icon: AppIcons.sourceFacebook, color: AppColors.info, label: 'Facebook');
     case TicketSource.twitter:
-      return (icon: AppIcons.sourceTwitter, color: AppColors.textLight, label: 'Twitter');
+      return (icon: AppIcons.sourceTwitter, color: P.text, label: 'Twitter');
     case TicketSource.accueil:
       return (icon: AppIcons.sourceAccueil, color: AppColors.primary, label: 'Accueil');
   }
@@ -254,8 +255,8 @@ class _QueueHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
-      decoration: const BoxDecoration(
-        color: AppColors.darkSurface,
+      decoration: BoxDecoration(
+        color: P.surface,
         border: Border(bottom: BorderSide(color: Colors.white10)),
       ),
       child: Row(
@@ -267,13 +268,13 @@ class _QueueHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(ui.fileLabel,
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5)),
+                    style: TextStyle(color: P.muted, fontSize: 10.5)),
                 Text(
                   count == 0
                       ? ui.emptyLabel
                       : '$count ${count > 1 ? ui.unitMany : ui.unitOne} en attente',
-                  style: const TextStyle(
-                    color: AppColors.textLight,
+                  style: TextStyle(
+                    color: P.text,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
@@ -290,8 +291,8 @@ class _QueueHeader extends StatelessWidget {
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              disabledBackgroundColor: AppColors.darkSurface,
-              disabledForegroundColor: AppColors.textMuted,
+              disabledBackgroundColor: P.surface,
+              disabledForegroundColor: P.muted,
             ),
           ),
         ],
@@ -351,8 +352,8 @@ class _ActiveCallBanner extends StatelessWidget {
                       '${ui.activeLabel} ${ticket.client.nom}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textLight,
+                      style: TextStyle(
+                        color: P.text,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
@@ -360,8 +361,8 @@ class _ActiveCallBanner extends StatelessWidget {
                     const SizedBox(height: 1),
                     Text(
                       ticket.motif.label,
-                      style: const TextStyle(
-                          color: AppColors.textMuted, fontSize: 10.5),
+                      style: TextStyle(
+                          color: P.muted, fontSize: 10.5),
                     ),
                   ],
                 ),
@@ -436,7 +437,7 @@ class _TicketCardState extends State<_TicketCard> {
       case TicketPriority.normal:
         return (color: AppColors.info, label: 'Normale');
       case TicketPriority.faible:
-        return (color: AppColors.textMuted, label: 'Faible');
+        return (color: P.muted, label: 'Faible');
     }
   }
 
@@ -456,7 +457,7 @@ class _TicketCardState extends State<_TicketCard> {
     final waiting = DateTime.now().difference(ticket.createdAt);
     final waitingColor = waiting.inMinutes >= 10
         ? AppColors.danger
-        : (waiting.inMinutes >= 5 ? AppColors.warning : AppColors.textMuted);
+        : (waiting.inMinutes >= 5 ? AppColors.warning : P.muted);
     final showSource =
         ticket.source != TicketSource.telephone && ticket.source != TicketSource.accueil;
 
@@ -464,7 +465,7 @@ class _TicketCardState extends State<_TicketCard> {
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: Material(
-        color: AppColors.darkSurface,
+        color: P.surface,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
@@ -497,9 +498,9 @@ class _TicketCardState extends State<_TicketCard> {
                             child: Container(
                               padding: const EdgeInsets.all(2),
                               decoration: BoxDecoration(
-                                color: AppColors.darkSurface,
+                                color: P.surface,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: AppColors.dark, width: 1),
+                                border: Border.all(color: P.bg, width: 1),
                               ),
                               child: Hi(source.icon, size: 9, color: source.color),
                             ),
@@ -518,8 +519,8 @@ class _TicketCardState extends State<_TicketCard> {
                                   client.nom,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: AppColors.textLight,
+                                  style: TextStyle(
+                                    color: P.text,
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -543,8 +544,8 @@ class _TicketCardState extends State<_TicketCard> {
                                       : '${client.numeroPrincipal} · ${ticket.id}',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                      color: AppColors.textMuted, fontSize: 10),
+                                  style: TextStyle(
+                                      color: P.muted, fontSize: 10),
                                 ),
                               ),
                             ],
@@ -609,7 +610,7 @@ class _TicketCardState extends State<_TicketCard> {
                             _IconAction(
                               icon: AppIcons.sparkle,
                               tooltip: 'Demander à l\'assistant',
-                              color: AppColors.textLight,
+                              color: P.text,
                               onTap: widget.onAi,
                             ),
                             const SizedBox(width: 6),
@@ -634,8 +635,8 @@ class _TicketCardState extends State<_TicketCard> {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         visualDensity: VisualDensity.compact,
-                        disabledBackgroundColor: AppColors.dark,
-                        disabledForegroundColor: AppColors.textMuted,
+                        disabledBackgroundColor: P.bg,
+                        disabledForegroundColor: P.muted,
                       ),
                     ),
                   ],
@@ -716,16 +717,16 @@ class _EmptyQueue extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.textLight,
+              style: TextStyle(
+                color: P.text,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Profitez-en pour souffler.',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+              style: TextStyle(color: P.muted, fontSize: 11),
             ),
           ],
         ),

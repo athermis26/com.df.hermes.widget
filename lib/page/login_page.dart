@@ -7,6 +7,7 @@ import '../core/theme/app_colors.dart';
 import '../mock/mock_data.dart';
 import '../models/conseiller.dart';
 import '../widgets/hi.dart';
+import '../core/theme/theme_controller.dart';
 
 /// Écran affiché tant qu'aucun conseiller n'est connecté.
 /// Propose les 3 profils mock (Call Center, Agence, Digital).
@@ -19,7 +20,7 @@ class LoginPage extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.dark,
+          color: P.bg,
           border: Border.all(color: Colors.white12),
         ),
         child: Column(
@@ -32,19 +33,19 @@ class LoginPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
+                    Text(
                       'Bonjour',
                       style: TextStyle(
-                        color: AppColors.textLight,
+                        color: P.text,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Qui êtes-vous aujourd\'hui ?',
-                      style: TextStyle(color: AppColors.textMuted, fontSize: 12),
-                    ),
+                    // Text(
+                    //   'Qui êtes-vous aujourd\'hui ?',
+                    //   style: TextStyle(color: P.muted, fontSize: 12),
+                    // ),
                     const SizedBox(height: 16),
                     Expanded(
                       child: ListView.separated(
@@ -54,10 +55,10 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Center(
+                    Center(
                       child: Text(
                         'POC – sans authentification réelle',
-                        style: TextStyle(color: AppColors.textMuted, fontSize: 10),
+                        style: TextStyle(color: P.muted, fontSize: 10),
                       ),
                     ),
                   ],
@@ -152,7 +153,7 @@ class _ProfilCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = _meta();
     return Material(
-      color: AppColors.darkSurface,
+      color: P.surface,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
@@ -177,8 +178,8 @@ class _ProfilCard extends StatelessWidget {
                   children: [
                     Text(
                       m.label,
-                      style: const TextStyle(
-                        color: AppColors.textLight,
+                      style: TextStyle(
+                        color: P.text,
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
                       ),
@@ -186,7 +187,7 @@ class _ProfilCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       m.desc,
-                      style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                      style: TextStyle(color: P.muted, fontSize: 10.5),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -199,7 +200,7 @@ class _ProfilCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              const Hi(AppIcons.chevronRight, size: 16, color: AppColors.textMuted),
+              Hi(AppIcons.chevronRight, size: 16, color: P.muted),
             ],
           ),
         ),

@@ -4,6 +4,7 @@ import '../core/app_icons.dart';
 import '../core/theme/app_colors.dart';
 import '../models/client.dart';
 import 'hi.dart';
+import '../core/theme/theme_controller.dart';
 
 /// Overlay « appel entrant » – style screen-pop Genesys/Dimelo.
 /// Renvoie `true` si décroché, `false` si refusé.
@@ -37,8 +38,8 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
       child: Container(
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.dark, AppColors.darkSurface],
+          gradient: LinearGradient(
+            colors: [P.bg, P.surface],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -109,8 +110,8 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
             const SizedBox(height: 12),
             Text(
               c.nom,
-              style: const TextStyle(
-                color: AppColors.textLight,
+              style: TextStyle(
+                color: P.text,
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
               ),
@@ -119,7 +120,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
             const SizedBox(height: 2),
             Text(
               c.numeroPrincipal,
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+              style: TextStyle(color: P.muted, fontSize: 12),
             ),
             const SizedBox(height: 8),
             Wrap(

@@ -11,6 +11,7 @@ import '../../models/client.dart';
 import '../../models/conseiller.dart';
 import '../../models/quick_action.dart';
 import '../../widgets/hi.dart';
+import '../../core/theme/theme_controller.dart';
 
 class ActionsTab extends StatelessWidget {
   const ActionsTab({super.key});
@@ -49,8 +50,8 @@ class ActionsTab extends StatelessWidget {
   void _openSheet(BuildContext context, QuickAction a, Client? c) {
     if (a.requiresClient && c == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: AppColors.darkSurface,
+        SnackBar(
+          backgroundColor: P.surface,
           content: Row(
             children: [
               Hi(AppIcons.info, color: AppColors.warning, size: 16),
@@ -58,7 +59,7 @@ class ActionsTab extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Choisissez d\'abord un client dans la recherche.',
-                  style: TextStyle(color: AppColors.textLight, fontSize: 12),
+                  style: TextStyle(color: P.text, fontSize: 12),
                 ),
               ),
             ],
@@ -100,8 +101,8 @@ class _ContextBar extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: const BoxDecoration(
-        color: AppColors.darkSurface,
+      decoration: BoxDecoration(
+        color: P.surface,
         border: Border(bottom: BorderSide(color: Colors.white10)),
       ),
       child: Row(
@@ -110,19 +111,19 @@ class _ContextBar extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             'Vos outils · ${profilLabel()}',
-            style: const TextStyle(color: AppColors.textLight, fontSize: 10.5, fontWeight: FontWeight.w600),
+            style: TextStyle(color: P.text, fontSize: 10.5, fontWeight: FontWeight.w600),
           ),
           const Spacer(),
           Hi(
             client == null ? AppIcons.noUser : AppIcons.userOk,
             size: 13,
-            color: client == null ? AppColors.textMuted : AppColors.success,
+            color: client == null ? P.muted : AppColors.success,
           ),
           const SizedBox(width: 4),
           Text(
             client?.nom ?? 'Personne en ligne',
             style: TextStyle(
-              color: client == null ? AppColors.textMuted : AppColors.textLight,
+              color: client == null ? P.muted : P.text,
               fontSize: 10.5,
             ),
           ),
@@ -146,7 +147,7 @@ class _ActionTile extends StatelessWidget {
     return Opacity(
       opacity: disabled ? 0.55 : 1,
       child: Material(
-        color: AppColors.darkSurface,
+        color: P.surface,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           onTap: onTap,
@@ -174,8 +175,8 @@ class _ActionTile extends StatelessWidget {
                           Expanded(
                             child: Text(
                               action.label,
-                              style: const TextStyle(
-                                color: AppColors.textLight,
+                              style: TextStyle(
+                                color: P.text,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -191,13 +192,13 @@ class _ActionTile extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         action.description,
-                        style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5, height: 1.3),
+                        style: TextStyle(color: P.muted, fontSize: 10.5, height: 1.3),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Hi(AppIcons.chevronRight, size: 14, color: AppColors.textMuted),
+                Hi(AppIcons.chevronRight, size: 14, color: P.muted),
               ],
             ),
           ),
@@ -261,7 +262,7 @@ class _ActionSheetState extends State<_ActionSheet> {
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: AppColors.darkSurface,
+        backgroundColor: P.surface,
         duration: const Duration(seconds: 3),
         content: Row(
           children: [
@@ -270,7 +271,7 @@ class _ActionSheetState extends State<_ActionSheet> {
             Expanded(
               child: Text(
                 'Direction HERMES web : $url',
-                style: const TextStyle(color: AppColors.textLight, fontSize: 12),
+                style: TextStyle(color: P.text, fontSize: 12),
               ),
             ),
           ],
@@ -282,8 +283,8 @@ class _ActionSheetState extends State<_ActionSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.dark,
+      decoration: BoxDecoration(
+        color: P.bg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
         border: Border(
           top: BorderSide(color: Colors.white12),
@@ -333,13 +334,13 @@ class _ActionSheetState extends State<_ActionSheet> {
             children: [
               Text(
                 widget.action.label,
-                style: const TextStyle(color: AppColors.textLight, fontSize: 13, fontWeight: FontWeight.w700),
+                style: TextStyle(color: P.text, fontSize: 13, fontWeight: FontWeight.w700),
               ),
               if (widget.client != null) ...[
                 const SizedBox(height: 2),
                 Text(
                   'Pour ${widget.client!.nom} · ${widget.client!.numeroPrincipal}',
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                  style: TextStyle(color: P.muted, fontSize: 10.5),
                 ),
               ],
             ],
@@ -354,10 +355,10 @@ class _ActionSheetState extends State<_ActionSheet> {
       case _SheetState.confirmation:
         return Text(
           widget.action.description,
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 11.5, height: 1.4),
+          style: TextStyle(color: P.muted, fontSize: 11.5, height: 1.4),
         );
       case _SheetState.running:
-        return const Padding(
+        return Padding(
           padding: EdgeInsets.symmetric(vertical: 10),
           child: Row(
             children: [
@@ -366,7 +367,7 @@ class _ActionSheetState extends State<_ActionSheet> {
                 child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
               ),
               SizedBox(width: 10),
-              Text('Un instant, on s\'en occupe…', style: TextStyle(color: AppColors.textLight, fontSize: 12)),
+              Text('Un instant, on s\'en occupe…', style: TextStyle(color: P.text, fontSize: 12)),
             ],
           ),
         );
@@ -389,7 +390,7 @@ class _ActionSheetState extends State<_ActionSheet> {
             child: OutlinedButton(
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.textMuted,
+                foregroundColor: P.muted,
                 side: const BorderSide(color: Colors.white24),
               ),
               child: const Text('Plus tard', style: TextStyle(fontSize: 12)),
@@ -420,7 +421,7 @@ class _ActionSheetState extends State<_ActionSheet> {
               child: OutlinedButton(
                 onPressed: () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.textMuted,
+                  foregroundColor: P.muted,
                   side: const BorderSide(color: Colors.white24),
                 ),
                 child: const Text('Pas maintenant', style: TextStyle(fontSize: 12)),
@@ -458,7 +459,7 @@ class _ActionSheetState extends State<_ActionSheet> {
               child: OutlinedButton(
                 onPressed: () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.textMuted,
+                  foregroundColor: P.muted,
                   side: const BorderSide(color: Colors.white24),
                 ),
                 child: const Text('Laisser tomber', style: TextStyle(fontSize: 12)),

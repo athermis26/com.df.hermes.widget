@@ -14,6 +14,7 @@ import '../../models/case_draft.dart';
 import '../../models/client.dart';
 import '../../models/ticket.dart';
 import '../../widgets/hi.dart';
+import '../../core/theme/theme_controller.dart';
 
 class AiTab extends StatefulWidget {
   const AiTab({super.key});
@@ -379,8 +380,8 @@ class _ActionBar extends StatelessWidget {
     final inWizard = step != _WizardStep.off && step != _WizardStep.done;
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 6, 10, 0),
-      decoration: const BoxDecoration(
-        color: AppColors.dark,
+      decoration: BoxDecoration(
+        color: P.bg,
         border: Border(top: BorderSide(color: Colors.white10)),
       ),
       child: Row(
@@ -415,7 +416,7 @@ class _ActionBar extends StatelessWidget {
               TextButton(
                 onPressed: onSkipCommentaire,
                 style: TextButton.styleFrom(
-                  foregroundColor: AppColors.textMuted,
+                  foregroundColor: P.muted,
                   visualDensity: VisualDensity.compact,
                 ),
                 child: const Text('Passer cette étape',
@@ -438,7 +439,7 @@ class _ChoiceChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(color: AppColors.dark),
+      decoration: BoxDecoration(color: P.bg),
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
       child: Wrap(
         spacing: 6,
@@ -495,7 +496,7 @@ class _RecapBubble extends StatelessWidget {
               constraints: const BoxConstraints(maxWidth: 280),
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.darkSurface,
+                color: P.surface,
                 border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(10),
@@ -540,10 +541,10 @@ class _RecapBubble extends StatelessWidget {
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: onEdit,
-                            icon: const Hi(AppIcons.refresh, size: 12, color: AppColors.textMuted),
+                            icon: Hi(AppIcons.refresh, size: 12, color: P.muted),
                             label: const Text('Modifier', style: TextStyle(fontSize: 11)),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.textMuted,
+                              foregroundColor: P.muted,
                               side: const BorderSide(color: Colors.white24),
                               visualDensity: VisualDensity.compact,
                             ),
@@ -591,12 +592,12 @@ class _Kv extends StatelessWidget {
           SizedBox(
             width: 78,
             child: Text(k,
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+                style: TextStyle(color: P.muted, fontSize: 10)),
           ),
           Expanded(
             child: Text(v,
-                style: const TextStyle(
-                  color: AppColors.textLight,
+                style: TextStyle(
+                  color: P.text,
                   fontSize: 11,
                   height: 1.3,
                 )),
@@ -619,16 +620,16 @@ class _ContextBar extends StatelessWidget {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: const BoxDecoration(
-          color: AppColors.darkSurface,
+        decoration: BoxDecoration(
+          color: P.surface,
           border: Border(bottom: BorderSide(color: Colors.white10)),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Hi(AppIcons.info, size: 14, color: AppColors.textMuted),
+            Hi(AppIcons.info, size: 14, color: P.muted),
             SizedBox(width: 6),
             Text('Personne en ligne pour l\'instant',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                style: TextStyle(color: P.muted, fontSize: 11)),
           ],
         ),
       );
@@ -675,9 +676,9 @@ class _EmptyState extends StatelessWidget {
           children: [
             const Hi(AppIcons.sparkle, size: 42, color: AppColors.primary),
             const SizedBox(height: 12),
-            const Text('Votre assistant IA',
+            Text('Votre assistant IA',
                 style: TextStyle(
-                    color: AppColors.textLight,
+                    color: P.text,
                     fontSize: 14,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: 6),
@@ -686,8 +687,8 @@ class _EmptyState extends StatelessWidget {
                   ? 'Trouvez d\'abord un client dans la recherche, et je vous prépare une analyse aux petits oignons.'
                   : 'Posez une question, piochez une suggestion ou cliquez sur « Créer une case » ci-dessous.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                  color: AppColors.textMuted, fontSize: 11.5, height: 1.4),
+              style: TextStyle(
+                  color: P.muted, fontSize: 11.5, height: 1.4),
             ),
           ],
         ),
@@ -703,8 +704,8 @@ class _Bubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUser = msg.sender == _Sender.user;
-    final bg = isUser ? AppColors.primary : AppColors.darkSurface;
-    final fg = isUser ? Colors.white : AppColors.textLight;
+    final bg = isUser ? AppColors.primary : P.surface;
+    final fg = isUser ? Colors.white : P.text;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
@@ -773,7 +774,7 @@ class _TypingDotsState extends State<_TypingDots>
             width: 5, height: 5,
             margin: const EdgeInsets.symmetric(horizontal: 1.5),
             decoration: BoxDecoration(
-              color: AppColors.textMuted.withValues(alpha: op),
+              color: P.muted.withValues(alpha: op),
               shape: BoxShape.circle,
             ),
           );
@@ -821,7 +822,7 @@ class _Suggestions extends StatelessWidget {
       ),
     ];
     return Container(
-      decoration: const BoxDecoration(color: AppColors.dark),
+      decoration: BoxDecoration(color: P.bg),
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 0),
       child: SizedBox(
         height: 30,
@@ -839,7 +840,7 @@ class _Suggestions extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.darkSurface,
+                    color: P.surface,
                     border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -848,7 +849,7 @@ class _Suggestions extends StatelessWidget {
                     children: [
                       Hi(s.icon, size: 12, color: AppColors.primary),
                       const SizedBox(width: 5),
-                      Text(s.label, style: const TextStyle(color: AppColors.textLight, fontSize: 10.5)),
+                      Text(s.label, style: TextStyle(color: P.text, fontSize: 10.5)),
                     ],
                   ),
                 ),
@@ -886,7 +887,7 @@ class _Input extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
-      decoration: const BoxDecoration(color: AppColors.dark),
+      decoration: BoxDecoration(color: P.bg),
       child: Row(
         children: [
           Expanded(
@@ -895,13 +896,13 @@ class _Input extends StatelessWidget {
               enabled: enabled,
               textInputAction: TextInputAction.send,
               onSubmitted: onSubmit,
-              style: const TextStyle(color: AppColors.textLight, fontSize: 12),
+              style: TextStyle(color: P.text, fontSize: 12),
               decoration: InputDecoration(
                 isDense: true,
                 hintText: hint,
-                hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 11.5),
+                hintStyle: TextStyle(color: P.muted, fontSize: 11.5),
                 filled: true,
-                fillColor: AppColors.darkSurface,
+                fillColor: P.surface,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -916,7 +917,7 @@ class _Input extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Material(
-            color: enabled ? AppColors.primary : AppColors.darkSurface,
+            color: enabled ? AppColors.primary : P.surface,
             shape: const CircleBorder(),
             child: InkWell(
               customBorder: const CircleBorder(),

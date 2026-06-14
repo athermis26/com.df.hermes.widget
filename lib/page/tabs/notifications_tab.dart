@@ -13,6 +13,7 @@ import '../../mock/mock_data.dart';
 import '../../models/conseiller.dart';
 import '../../models/notification.dart';
 import '../../widgets/hi.dart';
+import '../../core/theme/theme_controller.dart';
 
 class NotificationsTab extends StatefulWidget {
   const NotificationsTab({super.key});
@@ -78,12 +79,12 @@ class _NotificationsTabState extends State<NotificationsTab> {
           const SizedBox(height: 8),
           _FileCard(count: _fileCount, onNext: _clientSuivant),
           const SizedBox(height: 12),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 2, vertical: 6),
             child: Text(
               'Vos notifications',
               style: TextStyle(
-                color: AppColors.textMuted,
+                color: P.muted,
                 fontSize: 10.5,
                 letterSpacing: 0.5,
                 fontWeight: FontWeight.w700,
@@ -116,7 +117,7 @@ class _StatutCard extends StatelessWidget {
       case StatutConseiller.enTraitement:
         return (color: AppColors.warning, label: 'En appel', icon: AppIcons.statusBusy);
       case StatutConseiller.pause:
-        return (color: AppColors.textMuted, label: 'En pause', icon: AppIcons.statusPause);
+        return (color: P.muted, label: 'En pause', icon: AppIcons.statusPause);
     }
   }
 
@@ -128,7 +129,7 @@ class _StatutCard extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.darkSurface,
+            color: P.surface,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: Colors.white10),
           ),
@@ -177,14 +178,14 @@ class _SegmentBtn extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Hi(meta.icon, size: 14, color: selected ? meta.color : AppColors.textMuted),
+            Hi(meta.icon, size: 14, color: selected ? meta.color : P.muted),
             const SizedBox(height: 2),
             Text(
               meta.label,
               style: TextStyle(
                 fontSize: 9.5,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: selected ? meta.color : AppColors.textMuted,
+                color: selected ? meta.color : P.muted,
               ),
             ),
           ],
@@ -232,7 +233,7 @@ class _DmtCardState extends State<_DmtCard> {
         Color color;
         String hint;
         if (start == null) {
-          color = AppColors.textMuted;
+          color = P.muted;
           hint = 'En attente d\'un appel';
         } else if (elapsed >= ConseillerState.dmtTarget) {
           color = AppColors.danger;
@@ -248,7 +249,7 @@ class _DmtCardState extends State<_DmtCard> {
         return Container(
           padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
           decoration: BoxDecoration(
-            color: AppColors.darkSurface,
+            color: P.surface,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: Colors.white10),
           ),
@@ -259,10 +260,10 @@ class _DmtCardState extends State<_DmtCard> {
                 children: [
                   const Hi(AppIcons.dmt, size: 14, color: AppColors.primary),
                   const SizedBox(width: 6),
-                  const Text(
+                  Text(
                     'Temps de l\'appel',
                     style: TextStyle(
-                      color: AppColors.textLight,
+                      color: P.text,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                     ),
@@ -294,9 +295,9 @@ class _DmtCardState extends State<_DmtCard> {
                 children: [
                   Text(hint, style: TextStyle(color: color, fontSize: 10)),
                   const Spacer(),
-                  const Text(
+                  Text(
                     'Objectif : 10:00',
-                    style: TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+                    style: TextStyle(color: P.muted, fontSize: 9.5),
                   ),
                 ],
               ),
@@ -358,7 +359,7 @@ class _FileCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: P.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.white10),
       ),
@@ -370,17 +371,17 @@ class _FileCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Dans la file',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                  style: TextStyle(color: P.muted, fontSize: 10.5),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   count == 0
                       ? 'File vide, bravo !'
                       : '$count personne${count > 1 ? 's' : ''} vous attend${count > 1 ? 'ent' : ''}',
-                  style: const TextStyle(
-                    color: AppColors.textLight,
+                  style: TextStyle(
+                    color: P.text,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
@@ -422,7 +423,7 @@ class _NotifTile extends StatelessWidget {
       case NotifType.retourFile:
         return (icon: AppIcons.retour, color: AppColors.warning);
       case NotifType.info:
-        return (icon: AppIcons.info, color: AppColors.textMuted);
+        return (icon: AppIcons.info, color: P.muted);
     }
   }
 
@@ -430,7 +431,7 @@ class _NotifTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final m = _meta();
     return Material(
-      color: AppColors.darkSurface,
+      color: P.surface,
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         onTap: onTap,
@@ -459,7 +460,7 @@ class _NotifTile extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: AppColors.danger,
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.darkSurface, width: 1.5),
+                          border: Border.all(color: P.surface, width: 1.5),
                         ),
                       ),
                     ),
@@ -476,7 +477,7 @@ class _NotifTile extends StatelessWidget {
                           child: Text(
                             n.titre,
                             style: TextStyle(
-                              color: AppColors.textLight,
+                              color: P.text,
                               fontSize: 12,
                               fontWeight: n.lue ? FontWeight.w500 : FontWeight.w700,
                             ),
@@ -484,20 +485,20 @@ class _NotifTile extends StatelessWidget {
                         ),
                         Text(
                           formatDateHeure(n.date),
-                          style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+                          style: TextStyle(color: P.muted, fontSize: 9.5),
                         ),
                       ],
                     ),
                     const SizedBox(height: 2),
                     Text(
                       n.message,
-                      style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5, height: 1.3),
+                      style: TextStyle(color: P.muted, fontSize: 10.5, height: 1.3),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 4),
-              const Hi(AppIcons.chevronRight, size: 14, color: AppColors.textMuted),
+              Hi(AppIcons.chevronRight, size: 14, color: P.muted),
             ],
           ),
         ),
@@ -513,18 +514,18 @@ class _EmptyNotifs extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.darkSurface,
+        color: P.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.white10),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Hi(AppIcons.allGood, color: AppColors.success, size: 18),
           SizedBox(width: 8),
           Expanded(
             child: Text(
               'Rien à signaler, tout est à jour.',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 11.5),
+              style: TextStyle(color: P.muted, fontSize: 11.5),
             ),
           ),
         ],
