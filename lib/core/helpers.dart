@@ -29,11 +29,11 @@ class Helpers {
     await trayManager.setIcon(
       Platform.isWindows ? trayIconPath : trayIconPngPath,
     );
-    await trayManager.setToolTip('HERMES · votre compagnon');
+    await trayManager.setToolTip('HERMÈS · CRM 360° Orange CI');
     await trayManager.setContextMenu(
       Menu(
         items: [
-          MenuItem(key: 'show_window', label: 'Ouvrir HERMES'),
+          MenuItem(key: 'show_window', label: 'Ouvrir HERMÈS'),
           MenuItem(key: 'hide_window', label: 'Mettre de côté'),
           MenuItem.separator(),
           MenuItem(key: 'simulate_call', label: 'Simuler un appel entrant'),

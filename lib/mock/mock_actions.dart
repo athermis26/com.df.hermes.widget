@@ -81,7 +81,7 @@ final List<QuickAction> mockActions = [
   QuickAction(
     id: 'suspendre_compte',
     label: 'Suspendre le compte',
-    description: 'Action sensible – on continue sur HERMES web.',
+    description: 'Action sensible – on continue sur HERMÈS web.',
     icon: AppIcons.disturb,
     color: AppColors.danger,
     allowedProfils: [ProfilConseiller.superviseur],
@@ -91,7 +91,7 @@ final List<QuickAction> mockActions = [
   QuickAction(
     id: 'remise_service',
     label: 'Remettre le compte en service',
-    description: 'Action sensible – on continue sur HERMES web.',
+    description: 'Action sensible – on continue sur HERMÈS web.',
     icon: AppIcons.power,
     color: AppColors.warning,
     allowedProfils: [ProfilConseiller.superviseur],

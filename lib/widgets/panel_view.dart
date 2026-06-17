@@ -141,7 +141,7 @@ class _TopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
+      decoration: const BoxDecoration(color: Colors.black),
       child: Column(
         children: [
           _HeaderRow(bellKey: bellKey, onBellTap: onBellTap),
@@ -175,6 +175,9 @@ class _HeaderRow extends StatelessWidget {
       onPanStart: (_) => windowManager.startDragging(),
       child: Container(
         height: 48,
+        decoration: BoxDecoration(
+          color: Colors.black
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           children: [
@@ -183,9 +186,17 @@ class _HeaderRow extends StatelessWidget {
               valueListenable: PanelNav.instance.stack,
               builder: (_, st, _) {
                 if (st.length <= 1) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 4),
-                    child: Hi(AppIcons.agent, color: Colors.white, size: 20),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(3),
+                      child: Image.asset(
+                        'assets/icon/master_logo.png',
+                        width: 24,
+                        height: 24,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   );
                 }
                 return _IconBtn(
@@ -277,7 +288,7 @@ class _HeaderRow extends StatelessWidget {
                   child: Row(children: [
                     Hi(AppIcons.statusOk, size: 14, color: AppColors.success),
                     SizedBox(width: 8),
-                    Text('Je suis dispo',
+                    Text('Me rendre disponible',
                         style: TextStyle(color: P.text, fontSize: 12)),
                   ]),
                 ),
@@ -287,7 +298,7 @@ class _HeaderRow extends StatelessWidget {
                   child: Row(children: [
                     Hi(AppIcons.statusPause, size: 14, color: P.muted),
                     SizedBox(width: 8),
-                    Text('Je prends une pause',
+                    Text('Me mettre en pause',
                         style: TextStyle(color: P.text, fontSize: 12)),
                   ]),
                 ),
@@ -369,9 +380,9 @@ class _ConseillerLine extends StatelessWidget {
       case StatutConseiller.disponible:
         return (color: AppColors.success, label: 'Disponible');
       case StatutConseiller.enTraitement:
-        return (color: AppColors.warning, label: 'En ligne');
+        return (color: AppColors.warning, label: 'En interaction');
       case StatutConseiller.pause:
-        return (color: P.muted, label: 'En pause');
+        return (color: P.muted, label: 'Pause');
     }
   }
 

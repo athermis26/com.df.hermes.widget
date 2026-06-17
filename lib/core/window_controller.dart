@@ -16,7 +16,7 @@ class HermesWindow {
   static final instance = HermesWindow._();
 
   static const Size bubbleSize = Size(72, 72);
-  static const Size panelSize = Size(420, 680);
+  static const Size panelSize = Size(440, 720);
 
   final ValueNotifier<WindowMode> mode = ValueNotifier(WindowMode.panel);
 

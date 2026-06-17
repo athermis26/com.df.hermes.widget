@@ -85,7 +85,7 @@ class _NotificationsPopoverState extends State<NotificationsPopover> {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'Vos notifications',
+                      'Notifications',
                       style: TextStyle(
                         color: P.text,
                         fontSize: 12,

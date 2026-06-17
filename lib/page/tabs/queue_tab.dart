@@ -44,49 +44,49 @@ class _ProfilUi {
     switch (p) {
       case ProfilConseiller.callCenter:
         return const _ProfilUi(
-          fileLabel: 'Votre file',
-          emptyLabel: 'File vide, bravo !',
-          unitOne: 'ticket',
-          unitMany: 'tickets',
-          nextLabel: 'Prendre le suivant',
-          takeLabel: 'Prendre',
-          activeLabel: 'En ligne avec',
+          fileLabel: 'Corbeille appels',
+          emptyLabel: 'File vide — aucun client en attente',
+          unitOne: 'interaction',
+          unitMany: 'interactions',
+          nextLabel: 'Appeler le suivant',
+          takeLabel: 'Décrocher',
+          activeLabel: 'Interaction en cours avec',
           icon: AppIcons.queue,
           showCallChrono: true,
         );
       case ProfilConseiller.agence:
         return const _ProfilUi(
-          fileLabel: 'Salle d\'attente agence',
-          emptyLabel: 'Personne en attente.',
+          fileLabel: 'Corbeille agence',
+          emptyLabel: 'Aucun client en agence pour le moment',
           unitOne: 'client',
           unitMany: 'clients',
           nextLabel: 'Appeler le suivant',
-          takeLabel: 'Recevoir',
-          activeLabel: 'Au guichet avec',
+          takeLabel: 'Prendre en charge',
+          activeLabel: 'Interaction en cours avec',
           icon: AppIcons.queue,
           showCallChrono: true,
         );
       case ProfilConseiller.digital:
         return const _ProfilUi(
-          fileLabel: 'Vos messages',
-          emptyLabel: 'Boîte vide.',
+          fileLabel: 'Corbeille digitale',
+          emptyLabel: 'Aucune interaction en attente — vous êtes disponible',
           unitOne: 'message',
           unitMany: 'messages',
-          nextLabel: 'Traiter le suivant',
-          takeLabel: 'Répondre',
-          activeLabel: 'En conversation avec',
+          nextLabel: 'Prendre le suivant',
+          takeLabel: 'Prendre le chat',
+          activeLabel: 'Interaction en cours avec',
           icon: AppIcons.tabNotifs,
           showCallChrono: false,
         );
       case ProfilConseiller.superviseur:
         return const _ProfilUi(
-          fileLabel: 'Vue superviseur',
-          emptyLabel: 'Aucun ticket en file',
-          unitOne: 'ticket',
-          unitMany: 'tickets',
+          fileLabel: 'Toutes corbeilles',
+          emptyLabel: 'Aucun case en attente',
+          unitOne: 'case',
+          unitMany: 'cases',
           nextLabel: 'Prendre le suivant',
-          takeLabel: 'Prendre',
-          activeLabel: 'En traitement de',
+          takeLabel: 'Prendre en charge',
+          activeLabel: 'Interaction en cours avec',
           icon: AppIcons.queue,
           showCallChrono: true,
         );
@@ -223,7 +223,7 @@ class _QueueTabState extends State<QueueTab> {
 ({AppIcon icon, Color color, String label}) sourceMeta(TicketSource s) {
   switch (s) {
     case TicketSource.telephone:
-      return (icon: AppIcons.sourcePhone, color: AppColors.primary, label: 'Téléphone');
+      return (icon: AppIcons.sourcePhone, color: AppColors.primary, label: 'Appel entrant');
     case TicketSource.email:
       return (icon: AppIcons.sourceEmail, color: AppColors.info, label: 'Email');
     case TicketSource.whatsapp:
@@ -233,7 +233,7 @@ class _QueueTabState extends State<QueueTab> {
     case TicketSource.twitter:
       return (icon: AppIcons.sourceTwitter, color: P.text, label: 'Twitter');
     case TicketSource.accueil:
-      return (icon: AppIcons.sourceAccueil, color: AppColors.primary, label: 'Accueil');
+      return (icon: AppIcons.sourceAccueil, color: AppColors.primary, label: 'Agence physique');
   }
 }
 
@@ -428,16 +428,19 @@ class _TicketCard extends StatefulWidget {
 class _TicketCardState extends State<_TicketCard> {
   bool _hovered = false;
 
-  ({Color color, String label}) _prioMeta(TicketPriority p) {
+  ({Color color, String label}) _prioMeta(TicketPriority p) =>
+      (color: _prioColor(p), label: p.label);
+
+  Color _prioColor(TicketPriority p) {
     switch (p) {
       case TicketPriority.urgent:
-        return (color: AppColors.danger, label: 'Urgent');
+        return AppColors.danger; // Critique
       case TicketPriority.eleve:
-        return (color: AppColors.warning, label: 'Élevée');
+        return AppColors.warning; // Haute
       case TicketPriority.normal:
-        return (color: AppColors.info, label: 'Normale');
+        return AppColors.info; // Moyenne
       case TicketPriority.faible:
-        return (color: P.muted, label: 'Faible');
+        return P.muted; // Faible
     }
   }
 
@@ -725,7 +728,7 @@ class _EmptyQueue extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Profitez-en pour souffler.',
+              'Vous êtes disponible.',
               style: TextStyle(color: P.muted, fontSize: 11),
             ),
           ],

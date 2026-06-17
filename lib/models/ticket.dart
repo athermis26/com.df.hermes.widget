@@ -39,14 +39,15 @@ extension TicketMotifX on TicketMotif {
 }
 
 extension TicketPriorityX on TicketPriority {
+  // Aligné sur HERMÈS web : Critique / Haute / Moyenne / Faible.
   String get label {
     switch (this) {
       case TicketPriority.urgent:
-        return 'Urgent';
+        return 'Critique';
       case TicketPriority.eleve:
-        return 'Élevée';
+        return 'Haute';
       case TicketPriority.normal:
-        return 'Normale';
+        return 'Moyenne';
       case TicketPriority.faible:
         return 'Faible';
     }

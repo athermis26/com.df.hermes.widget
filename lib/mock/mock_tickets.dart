@@ -119,11 +119,11 @@ final List<Ticket> mockTicketsDigital = () {
 
 /// Corbeilles cibles pour le transfert (mock).
 const List<String> mockCorbeillesCibles = [
-  'Call Center · Pro',
-  'Niveau 2 · Réclamations',
-  'Niveau 2 · Fibre',
-  'Niveau 2 · Orange Money',
-  'Superviseur de plateau',
+  'N2 — Expertise Technique N2',
+  'N3 — Direction Technique N3',
+  'Expertise & Escalade N2',
+  'Agence Front Office N1',
+  'Administration',
 ];
 
 /// Mapping Motif → liste d'IDs d'actions du catalogue `mockActions`.

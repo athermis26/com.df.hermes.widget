@@ -81,14 +81,22 @@ class _Header extends StatelessWidget {
       child: Container(
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
+        decoration: const BoxDecoration(color: Colors.black),
         child: Row(
           children: [
-            const Hi(AppIcons.agent, color: Colors.white, size: 22),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: Image.asset(
+                'assets/icon/master_logo.png',
+                width: 28,
+                height: 28,
+                fit: BoxFit.cover,
+              ),
+            ),
             const SizedBox(width: 10),
             const Expanded(
               child: Text(
-                'HERMES',
+                'HERMÈS',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w800,
@@ -178,6 +186,8 @@ class _ProfilCard extends StatelessWidget {
                   children: [
                     Text(
                       m.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: P.text,
                         fontSize: 12.5,
@@ -187,7 +197,9 @@ class _ProfilCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       m.desc,
-                      style: TextStyle(color: P.muted, fontSize: 10.5),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: P.muted, fontSize: 10.5, height: 1.3),
                     ),
                     const SizedBox(height: 4),
                     Text(

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '../core/app_icons.dart';
 import '../core/theme/app_colors.dart';
 import '../core/window_controller.dart';
 import '../mock/mock_data.dart';
-import 'hi.dart';
 import '../core/theme/theme_controller.dart';
 
 class BubbleView extends StatelessWidget {
@@ -26,7 +24,7 @@ class BubbleView extends StatelessWidget {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
+                // shape: BoxShape.circle,
                 gradient: AppColors.primaryGradient,
                 boxShadow: const [
                   BoxShadow(
@@ -36,8 +34,15 @@ class BubbleView extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Center(
-                child: Hi(AppIcons.agent, color: Colors.white, size: 28),
+              child: Center(
+                child: ClipRRect(
+                  child: Image.asset(
+                    'assets/icon/master_logo.png',
+                    width: 64,
+                    height: 64,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             ),
             if (unread > 0)

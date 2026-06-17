@@ -56,7 +56,7 @@ class _PersistentSearchBarState extends State<PersistentSearchBar> {
               decoration: const InputDecoration(
                 isDense: true,
                 border: InputBorder.none,
-                hintText: 'Ticket, client, numéro…',
+                hintText: 'MSISDN, nom, contrat, ICE…',
                 hintStyle: TextStyle(color: Colors.white54, fontSize: 12),
                 contentPadding: EdgeInsets.symmetric(vertical: 8),
               ),

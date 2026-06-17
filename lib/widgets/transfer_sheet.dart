@@ -53,7 +53,7 @@ class TransferSheet extends StatelessWidget {
               Hi(AppIcons.transferred, color: AppColors.info, size: 18),
               SizedBox(width: 8),
               Text(
-                'Transférer ce ticket',
+                'Transférer le case',
                 style: TextStyle(
                     color: P.text,
                     fontSize: 13,
@@ -65,7 +65,7 @@ class TransferSheet extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 26),
             child: Text(
-              'Actuellement dans : ${ticket.corbeille}',
+              'Corbeille actuelle : ${ticket.corbeille}',
               style: TextStyle(color: P.muted, fontSize: 10.5),
             ),
           ),
@@ -127,7 +127,7 @@ class TransferSheet extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Ticket ${ticket.id} transféré vers « $cible ».',
+                'Case ${ticket.id} transféré vers « $cible ».',
                 style: TextStyle(color: P.text, fontSize: 12),
               ),
             ),

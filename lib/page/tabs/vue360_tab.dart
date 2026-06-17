@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../core/ai_wizard_trigger.dart';
@@ -15,7 +17,7 @@ import '../../widgets/transfer_sheet.dart';
 import '../../core/theme/theme_controller.dart';
 
 /// Mini Vue 360 — fiche client compacte, scrollable, cartes repliables.
-class Vue360Tab extends StatelessWidget {
+class Vue360Tab extends StatefulWidget {
   final Client client;
   final VoidCallback onBack;
 
@@ -26,11 +28,35 @@ class Vue360Tab extends StatelessWidget {
   });
 
   @override
+  State<Vue360Tab> createState() => _Vue360TabState();
+}
+
+class _Vue360TabState extends State<Vue360Tab> {
+  Timer? _timer;
+  late final ValueNotifier<DateTime?> _dmtStart;
+
+  @override
+  void initState() {
+    super.initState();
+    _dmtStart = ConseillerState.instance.dmtStart;
+    // Rafraîchit l'UI toutes les secondes (comme QueueTab)
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _ClientBar(client: client, onBack: onBack),
+        _ClientBar(client: widget.client, onBack: widget.onBack),
         ValueListenableBuilder<Ticket?>(
           valueListenable: TicketSelection.instance.current,
           builder: (_, ticket, _) {
@@ -47,14 +73,14 @@ class Vue360Tab extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
             children: [
-              if (client.contactsAujourdhui > 1)
-                _RecurrenceBanner(count: client.contactsAujourdhui),
-              _IdentiteCard(client: client),
-              _ScoringCard(scoring: client.scoring),
-              _ConsommationCard(conso: client.consommation),
-              _ContratsCard(contrats: client.contrats),
-              if (client.facturation != null)
-                _FacturationCard(facturation: client.facturation!),
+              if (widget.client.contactsAujourdhui > 1)
+                _RecurrenceBanner(count: widget.client.contactsAujourdhui),
+              _IdentiteCard(client: widget.client),
+              _ScoringCard(scoring: widget.client.scoring),
+              _ConsommationCard(conso: widget.client.consommation),
+              _ContratsCard(contrats: widget.client.contrats),
+              if (widget.client.facturation != null)
+                _FacturationCard(facturation: widget.client.facturation!),
             ],
           ),
         ),
@@ -70,64 +96,116 @@ class _ClientBar extends StatelessWidget {
   final VoidCallback onBack;
   const _ClientBar({required this.client, required this.onBack});
 
+  String _format(Duration d) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${two(d.inMinutes.remainder(60))}:${two(d.inSeconds.remainder(60))}';
+  }
+
+  void onRaccrocher() {
+    final t = ConseillerState.instance.activeTicket.value;
+    if (t != null) {
+      ConseillerState.instance.raccrocher();
+      TicketSelection.instance.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        color: P.surface,
-        border: Border(bottom: BorderSide(color: Colors.white10)),
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            tooltip: 'Retour',
-            icon: Hi(AppIcons.back, color: P.text, size: 18),
-            onPressed: onBack,
+    return ValueListenableBuilder<DateTime?>(
+      valueListenable: ConseillerState.instance.dmtStart,
+      builder: (_, start, _) {
+        final dur =
+        start == null ? Duration.zero : DateTime.now().difference(start);
+        final color = dur >= ConseillerState.dmtTarget
+            ? AppColors.danger
+            : (dur >= ConseillerState.dmtWarning
+            ? AppColors.warning
+            : AppColors.success);
+        return Container(
+          height: 56,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: P.surface,
+            border: Border(bottom: BorderSide(color: Colors.white10)),
           ),
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: AppColors.primary,
-            child: Text(
-              client.photoInitiales ?? '?',
-              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  client.nom,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: P.text, fontSize: 13, fontWeight: FontWeight.w700),
-                ),
-                Text(
-                  '${client.type} • ${client.segment} • ${client.numeroPrincipal}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: P.muted, fontSize: 10),
-                ),
-              ],
-            ),
-          ),
-          if (client.vip)
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: AppColors.warning,
-                borderRadius: BorderRadius.circular(4),
+          child: Row(
+            mainAxisAlignment: .spaceBetween,
+            children: [
+
+              IconButton(
+                tooltip: 'Retour',
+                icon: Hi(AppIcons.back, color: P.text, size: 18),
+                onPressed: onBack,
               ),
-              child: const Text('VIP',
-                  style: TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.w700)),
-            ),
-        ],
-      ),
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: AppColors.primary,
+                child: Text(
+                  client.photoInitiales ?? '?',
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      client.nom,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: P.text, fontSize: 13, fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      '${client.type} • ${client.segment} • ${client.numeroPrincipal}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: P.muted, fontSize: 10),
+                    ),
+                  ],
+                ),
+              ),
+              if (client.vip)
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.warning,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text('VIP',
+                      style: TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.w700)),
+                ),
+
+              const SizedBox(width: 8),
+
+              Row(
+                spacing: 8,
+                children: [
+                  Text(
+                    _format(dur),
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+
+                  IconButton(
+                    tooltip: 'Clôturer',
+                    onPressed: onRaccrocher,
+                    icon: const Hi(AppIcons.callReject, size: 18, color: AppColors.danger),
+                    padding: const EdgeInsets.all(4),
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -160,7 +238,7 @@ class _Vue360QuickActions extends StatelessWidget {
           Expanded(
             child: _MiniBtn(
               icon: AppIcons.createCase,
-              label: 'Créer case',
+              label: 'Créer un Case',
               color: AppColors.info,
               onTap: () {
                 PanelNav.instance.push(PanelRoute.assistant);
@@ -368,7 +446,7 @@ class _RecurrenceBannerState extends State<_RecurrenceBanner>
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Déjà ${widget.count} appels aujourd\'hui · il a besoin d\'attention',
+                'Client multicontact — ${widget.count} contacts aujourd\'hui',
                 style: const TextStyle(
                   color: AppColors.danger,
                   fontSize: 12,
@@ -471,17 +549,17 @@ class _IdentiteCard extends StatelessWidget {
     final identifie = client.statutIdentification == 'Valide';
     return _Section(
       icon: AppIcons.identity,
-      title: 'Qui est-ce ?',
+      title: 'Identité Client',
       trailing: _MiniBadge(
-        label: identifie ? 'Identifié' : 'À identifier',
+        label: identifie ? 'Identifié' : 'Non identifié',
         color: identifie ? AppColors.success : AppColors.danger,
       ),
       child: Column(
         children: [
           _KvLine(k: 'Type', v: client.type),
           _KvLine(k: 'Segment', v: client.segment),
-          _KvLine(k: 'Numéro', v: client.numeroPrincipal),
-          _KvLine(k: 'Identifiant', v: client.id),
+          _KvLine(k: 'MSISDN', v: client.numeroPrincipal),
+          _KvLine(k: 'Réf. IDBASE', v: client.id),
         ],
       ),
     );
@@ -524,27 +602,27 @@ class _ScoringCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _Section(
       icon: AppIcons.scoring,
-      title: 'En un coup d\'œil',
+      title: 'Scoring & Fidélité',
       child: Column(
         children: [
           Row(
             children: [
-              Expanded(child: _ScoringBadge(label: 'Payeur', value: scoring.qualitePayeur, color: _payeurColor(scoring.qualitePayeur))),
+              Expanded(child: _ScoringBadge(label: 'Score qualité payeur', value: scoring.qualitePayeur, color: _payeurColor(scoring.qualitePayeur))),
               const SizedBox(width: 6),
-              Expanded(child: _ScoringBadge(label: 'Valeur', value: scoring.segmentValeur, color: _valueColor(scoring.segmentValeur))),
+              Expanded(child: _ScoringBadge(label: 'Segment valeur', value: scoring.segmentValeur, color: _valueColor(scoring.segmentValeur))),
             ],
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: _Gauge(label: 'Satisfaction (CSI)', value: scoring.csi, max: 100, color: AppColors.primary)),
+              Expanded(child: _Gauge(label: 'Score CSI', value: scoring.csi, max: 100, color: AppColors.primary)),
               const SizedBox(width: 6),
-              Expanded(child: _Gauge(label: 'Recommandation (NPS)', value: scoring.nps + 100, max: 200, displayValue: scoring.nps, color: AppColors.info)),
+              Expanded(child: _Gauge(label: 'NPS', value: scoring.nps + 100, max: 200, displayValue: scoring.nps, color: AppColors.info)),
             ],
           ),
           if (scoring.dernierPassageBoutique != null) ...[
             const SizedBox(height: 8),
-            _KvLine(k: 'Vu en boutique le', v: formatDate(scoring.dernierPassageBoutique!)),
+            _KvLine(k: 'Dernière visite', v: formatDate(scoring.dernierPassageBoutique!)),
           ],
         ],
       ),
@@ -630,7 +708,7 @@ class _ConsommationCard extends StatelessWidget {
             : AppColors.success;
     return _Section(
       icon: AppIcons.consumption,
-      title: 'Ce qu\'il consomme',
+      title: 'Services & Consommation',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -709,7 +787,7 @@ class _MiniBarChart extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Sa conso ce mois-ci', style: TextStyle(color: P.muted, fontSize: 10.5)),
+        Text('Consommation mensuelle', style: TextStyle(color: P.muted, fontSize: 10.5)),
         const SizedBox(height: 6),
         SizedBox(
           height: 50,
@@ -793,7 +871,7 @@ class _ContratsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _Section(
       icon: AppIcons.contracts,
-      title: 'Ses contrats (${contrats.length})',
+      title: 'Contrats (${contrats.length})',
       child: Column(
         children: [
           for (var i = 0; i < contrats.length; i++) ...[
@@ -847,18 +925,18 @@ class _FacturationCard extends StatelessWidget {
     final paye = facturation.paye;
     return _Section(
       icon: AppIcons.billing,
-      title: 'Sa facture',
+      title: 'Facturation',
       trailing: _MiniBadge(
-        label: paye ? 'Réglée' : 'En attente',
+        label: paye ? 'Réglé' : 'En attente',
         color: paye ? AppColors.success : AppColors.danger,
       ),
       child: Column(
         children: [
           _KvLine(k: 'Dernière facture', v: formatFcfa(facturation.montantDerniereFacture)),
-          _KvLine(k: 'À régler avant', v: formatDate(facturation.echeance)),
+          _KvLine(k: 'Échéance', v: formatDate(facturation.echeance)),
           if (facturation.soldeDu > 0)
             _KvLine(
-              k: 'Reste à payer',
+              k: 'Solde dû',
               v: formatFcfa(facturation.soldeDu),
               valueColor: AppColors.danger,
               valueBold: true,

@@ -16,7 +16,7 @@ const List<BroadcastMessage> mockBroadcasts = [
   BroadcastMessage(
     id: 'B-003',
     severity: BroadcastSeverity.info,
-    text: 'Nouveau forfait Data 30 Go – argumentaire dispo sur HERMES.',
+    text: 'Nouveau forfait Data 30 Go – argumentaire dispo sur HERMÈS.',
   ),
   BroadcastMessage(
     id: 'B-004',

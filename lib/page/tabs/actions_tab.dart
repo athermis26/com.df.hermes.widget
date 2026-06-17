@@ -185,7 +185,7 @@ class _ActionTile extends StatelessWidget {
                           if (action.sensitive)
                             const Padding(
                               padding: EdgeInsets.only(left: 4),
-                              child: _Chip(label: 'HERMES web', color: AppColors.warning),
+                              child: _Chip(label: 'HERMÈS web', color: AppColors.warning),
                             ),
                         ],
                       ),
@@ -270,7 +270,7 @@ class _ActionSheetState extends State<_ActionSheet> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Direction HERMES web : $url',
+                'Direction HERMÈS web : $url',
                 style: TextStyle(color: P.text, fontSize: 12),
               ),
             ),
@@ -402,7 +402,7 @@ class _ActionSheetState extends State<_ActionSheet> {
             child: ElevatedButton.icon(
               onPressed: _openInHermes,
               icon: const Hi(AppIcons.openExternal, size: 14, color: Colors.black),
-              label: const Text('Continuer sur HERMES', style: TextStyle(fontSize: 11.5)),
+              label: const Text('Continuer sur HERMÈS', style: TextStyle(fontSize: 11.5)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.warning,
                 foregroundColor: Colors.black,

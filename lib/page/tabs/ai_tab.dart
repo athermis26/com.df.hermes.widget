@@ -390,7 +390,7 @@ class _ActionBar extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onStart,
               icon: const Hi(AppIcons.tabActions, size: 14, color: Colors.white),
-              label: const Text('Créer une case',
+              label: const Text('Créer un Case',
                   style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
@@ -628,15 +628,15 @@ class _ContextBar extends StatelessWidget {
           children: [
             Hi(AppIcons.info, size: 14, color: P.muted),
             SizedBox(width: 6),
-            Text('Personne en ligne pour l\'instant',
+            Text('Aucune interaction en cours',
                 style: TextStyle(color: P.muted, fontSize: 11)),
           ],
         ),
       );
     }
     final txt = ticket != null
-        ? 'Je connais ${client!.nom} · ticket « ${ticket!.motif.label} »'
-        : 'Je connais ${client!.nom} · ${client!.type} · ${client!.segment}';
+        ? 'Contexte : ${client!.nom} · ${ticket!.motif.label}'
+        : 'Contexte : ${client!.nom} · ${client!.type} · ${client!.segment}';
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -676,7 +676,7 @@ class _EmptyState extends StatelessWidget {
           children: [
             const Hi(AppIcons.sparkle, size: 42, color: AppColors.primary),
             const SizedBox(height: 12),
-            Text('Votre assistant IA',
+            Text('Assistant Hermès IA',
                 style: TextStyle(
                     color: P.text,
                     fontSize: 14,

@@ -1,4 +1,4 @@
-// Modèles métier du widget compagnon HERMES.
+// Modèles métier du widget compagnon HERMÈS.
 // Volontairement simples (pas de json_serializable) pour le POC.
 
 class Client {

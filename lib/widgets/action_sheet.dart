@@ -64,7 +64,7 @@ class _ActionSheetState extends State<ActionSheet> {
             const Hi(AppIcons.openExternal, color: AppColors.primary, size: 16),
             const SizedBox(width: 8),
             Expanded(
-              child: Text('Direction HERMES web : $url',
+              child: Text('Direction HERMÈS web : $url',
                   style: TextStyle(color: P.text, fontSize: 12)),
             ),
           ],
@@ -197,7 +197,7 @@ class _ActionSheetState extends State<ActionSheet> {
             child: ElevatedButton.icon(
               onPressed: _openInHermes,
               icon: const Hi(AppIcons.openExternal, size: 14, color: Colors.black),
-              label: const Text('Continuer sur HERMES',
+              label: const Text('Continuer sur HERMÈS',
                   style: TextStyle(fontSize: 11.5)),
               style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.warning,

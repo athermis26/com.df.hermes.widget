@@ -35,7 +35,7 @@ class MotifActionsSheet extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Direction HERMES web : $url',
+                'Direction HERMÈS web : $url',
                 style: TextStyle(color: P.text, fontSize: 12),
               ),
             ),
@@ -160,7 +160,7 @@ class MotifActionsSheet extends StatelessWidget {
           const SizedBox(height: 8),
           const Divider(height: 1, color: Colors.white10),
           const SizedBox(height: 8),
-          // Bouton de redirection vers HERMES web — toujours disponible
+          // Bouton de redirection vers HERMÈS web — toujours disponible
           // pour les opérations qui sortent du périmètre du widget.
           Material(
             color: AppColors.primary.withValues(alpha: 0.15),
@@ -188,7 +188,7 @@ class MotifActionsSheet extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Voir le dossier complet sur HERMES',
+                            'Voir le dossier complet sur HERMÈS',
                             style: TextStyle(
                                 color: AppColors.primary,
                                 fontSize: 12,
