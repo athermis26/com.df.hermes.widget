@@ -23,6 +23,9 @@ class AppIcons {
   static const AppIcon tabAi = HugeIcons.strokeRoundedSparkles;
   static const AppIcon tabActions = HugeIcons.strokeRoundedEnergy;
   static const AppIcon tabNotifs = HugeIcons.strokeRoundedNotification03;
+  static const AppIcon tabQueue = HugeIcons.strokeRoundedUserMultiple;
+  static const AppIcon tabVue360 = HugeIcons.strokeRoundedUserCircle02;
+  static const AppIcon tabChat = HugeIcons.strokeRoundedBubbleChat;
 
   // ── Recherche ───────────────────────────────────────────────
   static const AppIcon phone = HugeIcons.strokeRoundedCall02;
@@ -94,6 +97,7 @@ class AppIcons {
   // ── Appel entrant ───────────────────────────────────────────
   static const AppIcon callAccept = HugeIcons.strokeRoundedCall;
   static const AppIcon callReject = HugeIcons.strokeRoundedCallEnd01;
+  static const AppIcon cloturer = HugeIcons.strokeRoundedTick02;
 
   // ── Broadcast ───────────────────────────────────────────────
   static const AppIcon megaphone = HugeIcons.strokeRoundedMegaphone02;

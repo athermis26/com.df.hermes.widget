@@ -15,6 +15,7 @@ import '../models/client.dart';
 import '../models/conseiller.dart';
 import '../models/ticket.dart';
 import '../page/tabs/ai_tab.dart';
+import '../page/tabs/chat_tab.dart';
 import '../page/tabs/queue_tab.dart';
 import '../page/tabs/vue360_tab.dart';
 import 'broadcast_bar.dart';
@@ -34,6 +35,21 @@ class PanelView extends StatefulWidget {
 class _PanelViewState extends State<PanelView> {
   final GlobalKey _bellKey = GlobalKey();
   OverlayEntry? _notifsEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    // Bascule auto vers Vue 360 quand un client est sélectionné depuis
+    // ailleurs (file, recherche, screen-pop, notif).
+    ClientSelection.instance.current.addListener(_onClientChanged);
+  }
+
+  void _onClientChanged() {
+    final client = ClientSelection.instance.current.value;
+    if (client != null && PanelNav.instance.current.value != PanelRoute.vue360) {
+      PanelNav.instance.go(PanelRoute.vue360);
+    }
+  }
 
   void _toggleNotifs() {
     if (_notifsEntry != null) {
@@ -74,6 +90,7 @@ class _PanelViewState extends State<PanelView> {
 
   @override
   void dispose() {
+    ClientSelection.instance.current.removeListener(_onClientChanged);
     _notifsEntry?.remove();
     super.dispose();
   }
@@ -90,21 +107,29 @@ class _PanelViewState extends State<PanelView> {
         child: ValueListenableBuilder<Client?>(
           valueListenable: ClientSelection.instance.current,
           builder: (_, client, _) {
-            return ValueListenableBuilder<List<PanelRoute>>(
-              valueListenable: PanelNav.instance.stack,
-              builder: (_, stack, _) {
-                final route = stack.last;
+            return ValueListenableBuilder<PanelRoute>(
+              valueListenable: PanelNav.instance.current,
+              builder: (_, route, _) {
                 Widget body;
-                if (route == PanelRoute.assistant) {
-                  body = const AiTab();
-                } else {
-                  body = client != null
-                      ? Vue360Tab(
-                          key: ValueKey('vue360-${client.id}'),
-                          client: client,
-                          onBack: TicketSelection.instance.clear,
-                        )
-                      : const QueueTab();
+                switch (route) {
+                  case PanelRoute.queue:
+                    body = const QueueTab();
+                    break;
+                  case PanelRoute.vue360:
+                    body = client != null
+                        ? Vue360Tab(
+                            key: ValueKey('vue360-${client.id}'),
+                            client: client,
+                            onBack: TicketSelection.instance.clear,
+                          )
+                        : const _NoClientPlaceholder();
+                    break;
+                  case PanelRoute.assistant:
+                    body = const AiTab();
+                    break;
+                  case PanelRoute.chat:
+                    body = const ChatTab();
+                    break;
                 }
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -122,6 +147,7 @@ class _PanelViewState extends State<PanelView> {
                         ],
                       ),
                     ),
+                    _BottomNav(current: route),
                   ],
                 );
               },
@@ -171,7 +197,11 @@ class _HeaderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return LayoutBuilder(builder: (context, c) {
+      // Évite les overflow lors de la transition panel → bulle
+      // (fenêtre rétrécit à 64 px avant le swap de widget).
+      if (c.maxWidth < 220) return const SizedBox.shrink();
+      return GestureDetector(
       onPanStart: (_) => windowManager.startDragging(),
       child: Container(
         height: 48,
@@ -181,30 +211,17 @@ class _HeaderRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           children: [
-            // Bouton « retour » si on est plus haut dans la pile
-            ValueListenableBuilder<List<PanelRoute>>(
-              valueListenable: PanelNav.instance.stack,
-              builder: (_, st, _) {
-                if (st.length <= 1) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(3),
-                      child: Image.asset(
-                        'assets/icon/master_logo.png',
-                        width: 24,
-                        height: 24,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  );
-                }
-                return _IconBtn(
-                  icon: AppIcons.back,
-                  tooltip: 'Retour',
-                  onTap: PanelNav.instance.pop,
-                );
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: Image.asset(
+                  'assets/icon/master_logo.png',
+                  width: 24,
+                  height: 24,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
             const SizedBox(width: 4),
             const Expanded(child: _ConseillerLine()),
@@ -228,7 +245,7 @@ class _HeaderRow extends StatelessWidget {
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Hi(AppIcons.callReject, size: 13, color: Colors.white),
+                          Hi(AppIcons.cloturer, size: 13, color: Colors.white),
                           SizedBox(width: 4),
                           Text(
                             'Clôturer',
@@ -329,6 +346,7 @@ class _HeaderRow extends StatelessWidget {
         ),
       ),
     );
+    });
   }
 }
 
@@ -461,6 +479,148 @@ class _IconBtn extends StatelessWidget {
           padding: const EdgeInsets.all(6),
           child: Hi(icon, color: Colors.white, size: 18),
         ),
+      ),
+    );
+  }
+}
+
+// ─── BottomNavigation ────────────────────────────────────────────
+
+class _BottomNav extends StatelessWidget {
+  final PanelRoute current;
+  const _BottomNav({required this.current});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: P.surface,
+        border: Border(top: BorderSide(color: P.borderSoft)),
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          _NavItem(
+            icon: AppIcons.tabQueue,
+            label: 'File',
+            active: current == PanelRoute.queue,
+            onTap: () => PanelNav.instance.go(PanelRoute.queue),
+          ),
+          _NavItem(
+            icon: AppIcons.tabVue360,
+            label: 'Vue 360',
+            active: current == PanelRoute.vue360,
+            onTap: () => PanelNav.instance.go(PanelRoute.vue360),
+          ),
+          _NavItem(
+            icon: AppIcons.tabAi,
+            label: 'Assistant',
+            active: current == PanelRoute.assistant,
+            onTap: () => PanelNav.instance.go(PanelRoute.assistant),
+          ),
+          _NavItem(
+            icon: AppIcons.tabChat,
+            label: 'Chat',
+            active: current == PanelRoute.chat,
+            onTap: () => PanelNav.instance.go(PanelRoute.chat),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final AppIcon icon;
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.active,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = active ? AppColors.primary : P.muted;
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Hi(icon, color: color, size: 18),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 9.5,
+                  fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NoClientPlaceholder extends StatelessWidget {
+  const _NoClientPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: P.bg,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Hi(AppIcons.tabVue360, color: P.muted, size: 28),
+          const SizedBox(height: 8),
+          Text(
+            'Aucun client sélectionné',
+            style: TextStyle(
+              color: P.text,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Choisissez un client depuis la file d\'attente, la recherche\nou une notification pour afficher la Vue 360.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: P.muted, fontSize: 10.5),
+          ),
+          const SizedBox(height: 10),
+          InkWell(
+            onTap: () => PanelNav.instance.go(PanelRoute.queue),
+            borderRadius: BorderRadius.circular(6),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Text(
+                'Aller à la file',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -7,7 +7,6 @@ import '../../core/app_icons.dart';
 import '../../core/client_selection.dart';
 import '../../core/conseiller_state.dart';
 import '../../core/formatters.dart';
-import '../../core/panel_nav.dart';
 import '../../core/theme/app_colors.dart';
 import '../../mock/mock_data.dart';
 import '../../models/conseiller.dart';
@@ -52,7 +51,6 @@ class _NotificationsTabState extends State<NotificationsTab> {
       try {
         final c = mockClients.firstWhere((c) => c.id == n.clientIdLie);
         ClientSelection.instance.select(c);
-        PanelNav.instance.reset();
       } catch (_) {}
     }
   }
@@ -63,7 +61,6 @@ class _NotificationsTabState extends State<NotificationsTab> {
     setState(() => _fileCount--);
     ClientSelection.instance.select(pick);
     ConseillerState.instance.demarrerPriseEnCharge();
-    PanelNav.instance.reset();
   }
 
   @override

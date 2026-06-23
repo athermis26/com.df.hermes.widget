@@ -13,6 +13,7 @@ import '../../models/client.dart';
 import '../../models/ticket.dart';
 import '../../widgets/hi.dart';
 import '../../widgets/motif_actions_sheet.dart';
+import '../../widgets/motif_tag.dart';
 import '../../widgets/transfer_sheet.dart';
 import '../../core/theme/theme_controller.dart';
 
@@ -31,14 +32,15 @@ class Vue360Tab extends StatefulWidget {
   State<Vue360Tab> createState() => _Vue360TabState();
 }
 
-class _Vue360TabState extends State<Vue360Tab> {
+class _Vue360TabState extends State<Vue360Tab>
+    with SingleTickerProviderStateMixin {
   Timer? _timer;
-  late final ValueNotifier<DateTime?> _dmtStart;
+  late final TabController _tabs;
 
   @override
   void initState() {
     super.initState();
-    _dmtStart = ConseillerState.instance.dmtStart;
+    _tabs = TabController(length: 3, vsync: this);
     // Rafraîchit l'UI toutes les secondes (comme QueueTab)
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
@@ -48,15 +50,29 @@ class _Vue360TabState extends State<Vue360Tab> {
   @override
   void dispose() {
     _timer?.cancel();
+    _tabs.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final client = widget.client;
+    final mobileTvContrats = client.contrats
+        .where((c) => c.service == 'Mobile' || c.service == 'OrangeTV')
+        .toList();
+    final fixeNetContrats = client.contrats
+        .where((c) =>
+            c.service == 'Fixe' ||
+            c.service == 'Internet' ||
+            c.service == 'Fibre')
+        .toList();
+    final omContrats =
+        client.contrats.where((c) => c.service == 'OrangeMoney').toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _ClientBar(client: widget.client, onBack: widget.onBack),
+        _ClientBar(client: client, onBack: widget.onBack),
         ValueListenableBuilder<Ticket?>(
           valueListenable: TicketSelection.instance.current,
           builder: (_, ticket, _) {
@@ -69,22 +85,199 @@ class _Vue360TabState extends State<Vue360Tab> {
             );
           },
         ),
+        _UniverseTabBar(controller: _tabs),
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+          child: TabBarView(
+            controller: _tabs,
             children: [
-              if (widget.client.contactsAujourdhui > 1)
-                _RecurrenceBanner(count: widget.client.contactsAujourdhui),
-              _IdentiteCard(client: widget.client),
-              _ScoringCard(scoring: widget.client.scoring),
-              _ConsommationCard(conso: widget.client.consommation),
-              _ContratsCard(contrats: widget.client.contrats),
-              if (widget.client.facturation != null)
-                _FacturationCard(facturation: widget.client.facturation!),
+              _DataMobileTab(
+                client: client,
+                contrats: mobileTvContrats,
+              ),
+              _FixeInternetTab(contrats: fixeNetContrats),
+              _OrangeMoneyTab(client: client, contrats: omContrats),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+// ─── TabBar Univers ──────────────────────────────────────────────
+
+class _UniverseTabBar extends StatelessWidget {
+  final TabController controller;
+  const _UniverseTabBar({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: P.surface,
+        border: Border(bottom: BorderSide(color: P.borderSoft)),
+      ),
+      child: TabBar(
+        controller: controller,
+        isScrollable: false,
+        labelColor: AppColors.primary,
+        unselectedLabelColor: P.muted,
+        indicatorColor: AppColors.primary,
+        indicatorWeight: 2.5,
+        labelPadding: EdgeInsets.zero,
+        labelStyle:
+            const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700),
+        unselectedLabelStyle:
+            const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w500),
+        tabs: const [
+          _UniverseTabLabel(icon: AppIcons.smartphone, label: 'Data & Mobile'),
+          _UniverseTabLabel(icon: AppIcons.wifi, label: 'Fixe & Internet'),
+          _UniverseTabLabel(icon: AppIcons.wallet, label: 'Orange Money'),
+        ],
+      ),
+    );
+  }
+}
+
+class _UniverseTabLabel extends StatelessWidget {
+  final AppIcon icon;
+  final String label;
+  const _UniverseTabLabel({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tab(
+      height: 44,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Hi(icon, size: 13),
+          const SizedBox(width: 5),
+          Flexible(
+            child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Tab 1 : Data & Mobile ───────────────────────────────────────
+
+class _DataMobileTab extends StatelessWidget {
+  final Client client;
+  final List<Contrat> contrats;
+  const _DataMobileTab({required this.client, required this.contrats});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+      children: [
+        if (client.contactsAujourdhui > 1)
+          _RecurrenceBanner(count: client.contactsAujourdhui),
+        _ConsommationCard(conso: client.consommation),
+        if (contrats.isNotEmpty)
+          _ContratsCard(title: 'Mobile & TV', contrats: contrats),
+        // if (client.facturation != null)
+        //   _FacturationCard(facturation: client.facturation!),
+      ],
+    );
+  }
+}
+
+// ─── Tab 2 : Fixe & Internet ─────────────────────────────────────
+
+class _FixeInternetTab extends StatelessWidget {
+  final List<Contrat> contrats;
+  const _FixeInternetTab({required this.contrats});
+
+  @override
+  Widget build(BuildContext context) {
+    if (contrats.isEmpty) {
+      return _EmptyUniverse(
+        icon: AppIcons.wifi,
+        title: 'Pas d\'installation fixe',
+        subtitle: 'Aucune offre Fixe, Internet ou Fibre active pour ce client.',
+      );
+    }
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+      children: [
+        _ContratsCard(title: 'Réseau & Installation', contrats: contrats),
+        _FixeReseauCard(contrats: contrats),
+      ],
+    );
+  }
+}
+
+// ─── Tab 3 : Orange Money ────────────────────────────────────────
+
+class _OrangeMoneyTab extends StatelessWidget {
+  final Client client;
+  final List<Contrat> contrats;
+  const _OrangeMoneyTab({required this.client, required this.contrats});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasOm = contrats.isNotEmpty;
+    if (!hasOm) {
+      return _EmptyUniverse(
+        icon: AppIcons.wallet,
+        title: 'Pas de compte Orange Money',
+        subtitle:
+            'Aucun compte Orange Money associé à ce client. Proposer l\'ouverture en agence.',
+      );
+    }
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+      children: [
+        _OmAccountCard(contrat: contrats.first),
+        _OmTransactionsCard(),
+        _OmVisaCard(),
+        _OmCoffreCard(),
+      ],
+    );
+  }
+}
+
+class _EmptyUniverse extends StatelessWidget {
+  final AppIcon icon;
+  final String title;
+  final String subtitle;
+  const _EmptyUniverse({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: P.bg,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Hi(icon, color: P.muted, size: 28),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: TextStyle(
+              color: P.text,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: P.muted, fontSize: 10.5),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -196,7 +389,7 @@ class _ClientBar extends StatelessWidget {
                   IconButton(
                     tooltip: 'Clôturer',
                     onPressed: onRaccrocher,
-                    icon: const Hi(AppIcons.callReject, size: 18, color: AppColors.danger),
+                    icon: const Hi(AppIcons.cloturer, size: 18, color: AppColors.danger),
                     padding: const EdgeInsets.all(4),
                     constraints: const BoxConstraints(),
                   ),
@@ -226,23 +419,27 @@ class _Vue360QuickActions extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(
-            child: _MiniBtn(
-              icon: AppIcons.sparkle,
-              label: 'Assistant',
-              color: AppColors.primary,
-              onTap: () => PanelNav.instance.push(PanelRoute.assistant),
-            ),
-          ),
-          const SizedBox(width: 6),
+          // Expanded(
+          //   child: _MiniBtn(
+          //     icon: AppIcons.sparkle,
+          //     label: 'Assistant',
+          //     color: AppColors.primary,
+          //     onTap: () => PanelNav.instance.go(PanelRoute.assistant),
+          //   ),
+          // ),
+          // const SizedBox(width: 6),
           Expanded(
             child: _MiniBtn(
               icon: AppIcons.createCase,
               label: 'Créer un Case',
-              color: AppColors.info,
+              color: AppColors.primary,
               onTap: () {
-                PanelNav.instance.push(PanelRoute.assistant);
-                AiWizardTrigger.instance.requestCreateCase();
+                PanelNav.instance.go(PanelRoute.assistant);
+                // L'AiTab n'est pas encore monté à ce frame : on diffère le
+                // trigger pour que son listener soit bien enregistré.
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  AiWizardTrigger.instance.requestCreateCase();
+                });
               },
             ),
           ),
@@ -251,7 +448,7 @@ class _Vue360QuickActions extends StatelessWidget {
             child: _MiniBtn(
               icon: AppIcons.transferred,
               label: 'Transférer',
-              color: AppColors.warning,
+              color: AppColors.primary,
               onTap: () => TransferSheet.show(context, ticket),
             ),
           ),
@@ -260,7 +457,7 @@ class _Vue360QuickActions extends StatelessWidget {
             child: _MiniBtn(
               icon: AppIcons.tabActions,
               label: 'Actions',
-              color: AppColors.success,
+              color: AppColors.primary,
               onTap: () => MotifActionsSheet.show(context, ticket),
             ),
           ),
@@ -284,24 +481,35 @@ class _MiniBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: color.withValues(alpha: 0.14),
+      color: color,
       borderRadius: BorderRadius.circular(8),
+      elevation: 1.5,
+      shadowColor: color.withValues(alpha: 0.45),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
+        splashColor: Colors.white24,
+        highlightColor: Colors.white10,
+        child: Container(
+          height: 34,
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Hi(icon, size: 14, color: color),
-              const SizedBox(height: 3),
-              Text(
-                label,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
+              Hi(icon, size: 14, color: Colors.white),
+              const SizedBox(width: 5),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -356,27 +564,27 @@ class _TicketBanner extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Flexible(
-                      child: Text(
-                        ticket.motif.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: P.text,
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
+                    Flexible(child: MotifTag(label: ticket.motif.label)),
                     const SizedBox(width: 4),
                     _PrioMini(label: prio.label, color: prio.color),
                   ],
                 ),
-                Text(
-                  '${ticket.id} · ${ticket.corbeille}',
+                Text.rich(
+                  TextSpan(
+                    style: TextStyle(color: P.muted, fontSize: 12),
+                    children: [
+                      TextSpan(
+                        text: ticket.id,
+                        style: TextStyle(
+                          color: P.text,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      TextSpan(text: ' · ${ticket.corbeille}'),
+                    ],
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: P.muted, fontSize: 9.5),
                 ),
               ],
             ),
@@ -539,159 +747,6 @@ class _SectionState extends State<_Section> {
   }
 }
 
-// ─── Identité ────────────────────────────────────────────────────
-
-class _IdentiteCard extends StatelessWidget {
-  final Client client;
-  const _IdentiteCard({required this.client});
-  @override
-  Widget build(BuildContext context) {
-    final identifie = client.statutIdentification == 'Valide';
-    return _Section(
-      icon: AppIcons.identity,
-      title: 'Identité Client',
-      trailing: _MiniBadge(
-        label: identifie ? 'Identifié' : 'Non identifié',
-        color: identifie ? AppColors.success : AppColors.danger,
-      ),
-      child: Column(
-        children: [
-          _KvLine(k: 'Type', v: client.type),
-          _KvLine(k: 'Segment', v: client.segment),
-          _KvLine(k: 'MSISDN', v: client.numeroPrincipal),
-          _KvLine(k: 'Réf. IDBASE', v: client.id),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Scoring ─────────────────────────────────────────────────────
-
-class _ScoringCard extends StatelessWidget {
-  final Scoring scoring;
-  const _ScoringCard({required this.scoring});
-
-  Color _payeurColor(String s) {
-    switch (s) {
-      case 'Excellent':
-        return AppColors.success;
-      case 'Bon':
-        return AppColors.info;
-      case 'Risque':
-        return AppColors.danger;
-      default:
-        return P.muted;
-    }
-  }
-
-  Color _valueColor(String s) {
-    switch (s) {
-      case 'Gold':
-        return AppColors.warning;
-      case 'Silver':
-        return P.muted;
-      case 'Bronze':
-        return const Color(0xFFCD7F32);
-      default:
-        return P.muted;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _Section(
-      icon: AppIcons.scoring,
-      title: 'Scoring & Fidélité',
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(child: _ScoringBadge(label: 'Score qualité payeur', value: scoring.qualitePayeur, color: _payeurColor(scoring.qualitePayeur))),
-              const SizedBox(width: 6),
-              Expanded(child: _ScoringBadge(label: 'Segment valeur', value: scoring.segmentValeur, color: _valueColor(scoring.segmentValeur))),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(child: _Gauge(label: 'Score CSI', value: scoring.csi, max: 100, color: AppColors.primary)),
-              const SizedBox(width: 6),
-              Expanded(child: _Gauge(label: 'NPS', value: scoring.nps + 100, max: 200, displayValue: scoring.nps, color: AppColors.info)),
-            ],
-          ),
-          if (scoring.dernierPassageBoutique != null) ...[
-            const SizedBox(height: 8),
-            _KvLine(k: 'Dernière visite', v: formatDate(scoring.dernierPassageBoutique!)),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _ScoringBadge extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  const _ScoringBadge({required this.label, required this.value, required this.color});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: TextStyle(color: P.muted, fontSize: 9.5)),
-          const SizedBox(height: 1),
-          Text(value, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w700)),
-        ],
-      ),
-    );
-  }
-}
-
-class _Gauge extends StatelessWidget {
-  final String label;
-  final int value;
-  final int max;
-  final int? displayValue;
-  final Color color;
-  const _Gauge({required this.label, required this.value, required this.max, this.displayValue, required this.color});
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(child: Text(label, style: TextStyle(color: P.muted, fontSize: 9.5))),
-            Text(
-              '${displayValue ?? value}',
-              style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: (value / max).clamp(0, 1),
-            minHeight: 5,
-            backgroundColor: Colors.white10,
-            valueColor: AlwaysStoppedAnimation(color),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 // ─── Consommation ────────────────────────────────────────────────
 
 class _ConsommationCard extends StatelessWidget {
@@ -708,7 +763,7 @@ class _ConsommationCard extends StatelessWidget {
             : AppColors.success;
     return _Section(
       icon: AppIcons.consumption,
-      title: 'Services & Consommation',
+      title: 'Consommation',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -833,8 +888,9 @@ class _MiniBarChart extends StatelessWidget {
 // ─── Contrats ────────────────────────────────────────────────────
 
 class _ContratsCard extends StatelessWidget {
+  final String title;
   final List<Contrat> contrats;
-  const _ContratsCard({required this.contrats});
+  const _ContratsCard({required this.title, required this.contrats});
 
   AppIcon _iconFor(String service) {
     switch (service) {
@@ -871,7 +927,7 @@ class _ContratsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _Section(
       icon: AppIcons.contracts,
-      title: 'Contrats (${contrats.length})',
+      title: '$title (${contrats.length})',
       child: Column(
         children: [
           for (var i = 0; i < contrats.length; i++) ...[
@@ -903,7 +959,7 @@ class _ContratsCard extends StatelessWidget {
                 style: TextStyle(color: P.muted, fontSize: 10.5),
               ),
               children: [
-                _KvLine(k: 'Référence', v: contrats[i].id),
+                _KvLine(k: 'Référence', v: contrats[i].id, valueBold: true),
                 _KvLine(k: 'Offre', v: contrats[i].offre),
                 _KvLine(k: 'Statut', v: contrats[i].statut),
               ],
@@ -1020,6 +1076,252 @@ class _MiniBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(label, style: TextStyle(color: color, fontSize: 9.5, fontWeight: FontWeight.w700)),
+    );
+  }
+}
+
+// ─── Fixe & Internet — détails réseau (mock) ─────────────────────
+
+class _FixeReseauCard extends StatelessWidget {
+  final List<Contrat> contrats;
+  const _FixeReseauCard({required this.contrats});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasFibre = contrats.any((c) => c.service == 'Fibre');
+    final hasFixe = contrats.any((c) => c.service == 'Fixe');
+    return _Section(
+      icon: AppIcons.antenna,
+      title: 'État de l\'installation',
+      trailing: _MiniBadge(label: 'En ligne', color: AppColors.success),
+      child: Column(
+        children: [
+          _KvLine(k: 'Type d\'accès', v: hasFibre ? 'Fibre FTTH' : 'ADSL'),
+          _KvLine(k: 'Débit souscrit', v: hasFibre ? '500 Mb/s' : '20 Mb/s'),
+          _KvLine(k: 'Débit mesuré', v: hasFibre ? '482 Mb/s' : '18 Mb/s'),
+          _KvLine(k: 'Box', v: hasFibre ? 'Livebox Fibre 6' : 'Livebox 4'),
+          _KvLine(k: 'N° de ligne', v: hasFixe ? '+225 27 22 55 88 90' : '—'),
+          _KvLine(k: 'Dernier incident', v: 'Aucun (30 j)'),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Orange Money — cards mockées ────────────────────────────────
+
+class _OmAccountCard extends StatelessWidget {
+  final Contrat contrat;
+  const _OmAccountCard({required this.contrat});
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      icon: AppIcons.wallet,
+      title: 'Compte Orange Money',
+      trailing: _MiniBadge(label: contrat.statut, color: AppColors.success),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(child: _Tile(label: 'Solde principal', value: '125 400 F')),
+              const SizedBox(width: 6),
+              Expanded(child: _Tile(label: 'Plafond mensuel', value: '2 000 000 F')),
+            ],
+          ),
+          const SizedBox(height: 8),
+          _KvLine(k: 'Offre', v: contrat.offre),
+          _KvLine(k: 'Référence', v: contrat.id, valueBold: true),
+          _KvLine(k: 'Niveau KYC', v: 'KYC2 — Vérifié'),
+          _KvLine(k: 'Date d\'ouverture', v: '14/03/2022'),
+        ],
+      ),
+    );
+  }
+}
+
+class _OmTransactionsCard extends StatelessWidget {
+  const _OmTransactionsCard();
+
+  static const _txs = <_OmTx>[
+    _OmTx(label: 'Transfert vers +225 07 12 …', amount: -25000, when: 'il y a 12 min'),
+    _OmTx(label: 'Dépôt agence Cocody', amount: 50000, when: 'il y a 2 h'),
+    _OmTx(label: 'Paiement CIE', amount: -18750, when: 'hier'),
+    _OmTx(label: 'Retrait DAB Plateau', amount: -30000, when: 'hier'),
+    _OmTx(label: 'Réception salaire', amount: 250000, when: '02/06'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      icon: AppIcons.transferred,
+      title: 'Dernières transactions',
+      child: Column(
+        children: [
+          for (var i = 0; i < _txs.length; i++) ...[
+            if (i != 0) Divider(height: 10, color: P.borderSoft),
+            _OmTxLine(tx: _txs[i]),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _OmTx {
+  final String label;
+  final int amount; // F CFA, négatif = sortant
+  final String when;
+  const _OmTx({required this.label, required this.amount, required this.when});
+}
+
+class _OmTxLine extends StatelessWidget {
+  final _OmTx tx;
+  const _OmTxLine({required this.tx});
+
+  String _fmt(int v) {
+    final s = v.abs().toString();
+    final buf = StringBuffer();
+    for (var i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) buf.write(' ');
+      buf.write(s[i]);
+    }
+    return '${v < 0 ? '-' : '+'}${buf.toString()} F';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final out = tx.amount < 0;
+    final color = out ? AppColors.danger : AppColors.success;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Hi(
+            out ? AppIcons.sendToMobile : AppIcons.coins,
+            size: 14,
+            color: color,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tx.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: P.text,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(tx.when, style: TextStyle(color: P.muted, fontSize: 9.5)),
+              ],
+            ),
+          ),
+          Text(
+            _fmt(tx.amount),
+            style: TextStyle(
+              color: color,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OmVisaCard extends StatelessWidget {
+  const _OmVisaCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      icon: AppIcons.idCard,
+      title: 'Carte virtuelle Visa',
+      trailing: _MiniBadge(label: 'Active', color: AppColors.success),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1A1A1A), Color(0xFFFF7900)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  'VISA',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 2,
+                  ),
+                ),
+                SizedBox(height: 14),
+                Text(
+                  '4012  ••••  ••••  8731',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: [FontFeature.tabularFigures()],
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Exp. 08/27   •   CVV •••',
+                  style: TextStyle(color: Colors.white70, fontSize: 10.5),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          _KvLine(k: 'Plafond mensuel', v: '500 000 F'),
+          _KvLine(k: 'Consommé', v: '142 300 F'),
+          _KvLine(k: 'Abonnements actifs', v: 'Netflix · Spotify · Canal+'),
+        ],
+      ),
+    );
+  }
+}
+
+class _OmCoffreCard extends StatelessWidget {
+  const _OmCoffreCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      icon: AppIcons.lock,
+      title: 'Coffre-fort Orange Money',
+      trailing: _MiniBadge(label: 'Ouvert', color: AppColors.info),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(child: _Tile(label: 'Épargne totale', value: '850 000 F')),
+              const SizedBox(width: 6),
+              Expanded(child: _Tile(label: 'Rémunération', value: '4,2 % / an')),
+            ],
+          ),
+          const SizedBox(height: 8),
+          _KvLine(k: 'Versement programmé', v: '20 000 F / mois'),
+          _KvLine(k: 'Prochain versement', v: '01/07/2026'),
+          _KvLine(k: 'Objectif', v: '1 200 000 F (71 %)'),
+        ],
+      ),
     );
   }
 }

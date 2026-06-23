@@ -54,13 +54,6 @@ class LoginPage extends StatelessWidget {
                         itemBuilder: (_, i) => _ProfilCard(conseiller: mockConseillers[i]),
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Center(
-                      child: Text(
-                        'POC – sans authentification réelle',
-                        style: TextStyle(color: P.muted, fontSize: 10),
-                      ),
-                    ),
                   ],
                 ),
               ),

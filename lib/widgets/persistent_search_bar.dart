@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/app_icons.dart';
 import '../core/search_controller.dart';
+import '../core/theme/app_colors.dart';
 import 'hi.dart';
 
 /// Barre de recherche persistante affichée dans le header du panneau.
@@ -37,7 +38,7 @@ class _PersistentSearchBarState extends State<PersistentSearchBar> {
     return Container(
       height: 38,
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      color: Colors.black.withValues(alpha: 0.18),
+      color: AppColors.black,
       child: Row(
         children: [
           const Hi(AppIcons.tabSearch, size: 14, color: Colors.white70),

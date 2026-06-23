@@ -13,6 +13,7 @@ import '../../models/conseiller.dart';
 import '../../models/ticket.dart';
 import '../../widgets/hi.dart';
 import '../../widgets/motif_actions_sheet.dart';
+import '../../widgets/motif_tag.dart';
 import '../../widgets/transfer_sheet.dart';
 import '../../core/theme/theme_controller.dart';
 
@@ -73,7 +74,7 @@ class _ProfilUi {
           unitOne: 'message',
           unitMany: 'messages',
           nextLabel: 'Prendre le suivant',
-          takeLabel: 'Prendre le chat',
+          takeLabel: 'Prendre en charge',
           activeLabel: 'Interaction en cours avec',
           icon: AppIcons.tabNotifs,
           showCallChrono: false,
@@ -164,7 +165,7 @@ class _QueueTabState extends State<QueueTab> {
 
   void _openAi(Ticket t) {
     TicketSelection.instance.select(t);
-    PanelNav.instance.push(PanelRoute.assistant);
+    PanelNav.instance.go(PanelRoute.assistant);
   }
 
   void _showMotifActions(Ticket t) => MotifActionsSheet.show(context, t);
@@ -358,11 +359,10 @@ class _ActiveCallBanner extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 1),
-                    Text(
-                      ticket.motif.label,
-                      style: TextStyle(
-                          color: P.muted, fontSize: 10.5),
+                    const SizedBox(height: 3),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: MotifTag(label: ticket.motif.label, dense: true),
                     ),
                   ],
                 ),
@@ -388,7 +388,7 @@ class _ActiveCallBanner extends StatelessWidget {
               IconButton(
                 tooltip: 'Clôturer',
                 onPressed: onRaccrocher,
-                icon: const Hi(AppIcons.callReject, size: 18, color: AppColors.danger),
+                icon: const Hi(AppIcons.cloturer, size: 18, color: AppColors.danger),
                 padding: const EdgeInsets.all(4),
                 constraints: const BoxConstraints(),
               ),
@@ -464,7 +464,11 @@ class _TicketCardState extends State<_TicketCard> {
     final showSource =
         ticket.source != TicketSource.telephone && ticket.source != TicketSource.accueil;
 
-    return MouseRegion(
+    return LayoutBuilder(builder: (context, c) {
+      // Évite les RenderFlex overflow lorsque le panel se réduit
+      // (transition vers la bulle, fenêtre minimisée, etc.).
+      if (c.maxWidth < 220) return const SizedBox.shrink();
+      return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: Material(
@@ -497,15 +501,15 @@ class _TicketCardState extends State<_TicketCard> {
                         ),
                         if (showSource)
                           Positioned(
-                            right: -3, bottom: -3,
+                            right: -12, bottom: -8,
                             child: Container(
-                              padding: const EdgeInsets.all(2),
+                              padding: const EdgeInsets.all(3),
                               decoration: BoxDecoration(
                                 color: P.surface,
                                 shape: BoxShape.circle,
                                 border: Border.all(color: P.bg, width: 1),
                               ),
-                              child: Hi(source.icon, size: 9, color: source.color),
+                              child: Hi(source.icon, size: 14, color: source.color),
                             ),
                           ),
                       ],
@@ -541,14 +545,28 @@ class _TicketCardState extends State<_TicketCard> {
                           Row(
                             children: [
                               Flexible(
-                                child: Text(
-                                  showSource
-                                      ? '${source.label} · ${ticket.id}'
-                                      : '${client.numeroPrincipal} · ${ticket.id}',
+                                child: Text.rich(
+                                  TextSpan(
+                                    style: TextStyle(
+                                        color: P.muted, fontSize: 12),
+                                    children: [
+                                      TextSpan(
+                                        text: showSource
+                                            ? source.label
+                                            : client.numeroPrincipal,
+                                      ),
+                                      const TextSpan(text: ' · '),
+                                      TextSpan(
+                                        text: ticket.id,
+                                        style: TextStyle(
+                                          color: P.text,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      color: P.muted, fontSize: 10),
                                 ),
                               ),
                             ],
@@ -561,22 +579,7 @@ class _TicketCardState extends State<_TicketCard> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        ticket.motif.label,
-                        style: const TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                    Flexible(child: MotifTag(label: ticket.motif.label)),
                     const Spacer(),
                     Hi(AppIcons.dmt, size: 11, color: waitingColor),
                     const SizedBox(width: 3),
@@ -628,11 +631,8 @@ class _TicketCardState extends State<_TicketCard> {
                       ),
                     ),
                     const Spacer(),
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: widget.agentBusy ? null : widget.onPrendre,
-                      icon: const Hi(AppIcons.callAccept, size: 13, color: Colors.white),
-                      label: Text(widget.ui.takeLabel,
-                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -640,8 +640,22 @@ class _TicketCardState extends State<_TicketCard> {
                         visualDensity: VisualDensity.compact,
                         disabledBackgroundColor: P.bg,
                         disabledForegroundColor: P.muted,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                    ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // const Hi(AppIcons.callAccept, size: 13, color: Colors.white),
+                          // const SizedBox(width: 8),
+                          Text(
+                            widget.ui.takeLabel,
+                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ],
@@ -650,6 +664,7 @@ class _TicketCardState extends State<_TicketCard> {
         ),
       ),
     );
+    });
   }
 }
 

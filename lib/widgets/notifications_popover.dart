@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../core/app_icons.dart';
 import '../core/client_selection.dart';
 import '../core/formatters.dart';
-import '../core/panel_nav.dart';
 import '../core/theme/app_colors.dart';
 import '../mock/mock_data.dart';
 import '../models/notification.dart';
@@ -50,7 +49,6 @@ class _NotificationsPopoverState extends State<NotificationsPopover> {
       try {
         final c = mockClients.firstWhere((c) => c.id == n.clientIdLie);
         ClientSelection.instance.select(c);
-        PanelNav.instance.reset(); // file → affichera la Vue 360 du client
       } catch (_) {}
     }
     widget.onClose();

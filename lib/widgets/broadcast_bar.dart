@@ -75,13 +75,13 @@ class _BroadcastBarState extends State<BroadcastBar>
       child: Container(
         height: 24,
         decoration: BoxDecoration(
-          color: P.bg,
+          color: AppColors.primary,
           border: Border(bottom: BorderSide(color: Colors.white10)),
         ),
         child: Row(
           children: [
             const SizedBox(width: 8),
-            const Hi(AppIcons.megaphone, size: 13, color: AppColors.primary),
+            const Hi(AppIcons.megaphone, size: 13, color: AppColors.textLight),
             const SizedBox(width: 6),
             Expanded(
               child: ClipRect(
@@ -163,7 +163,7 @@ class _BroadcastItem extends StatelessWidget {
           Text(
             message.text,
             style: TextStyle(
-              color: P.text,
+              color: AppColors.textLight,
               fontSize: 10.5,
               fontWeight: FontWeight.w500,
               height: 1.1,
