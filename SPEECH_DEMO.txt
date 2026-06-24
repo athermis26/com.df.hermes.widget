@@ -1,0 +1,224 @@
+════════════════════════════════════════════════════════════════════
+  SPEECH DÉMO — HERMÈS WIDGET (v2)
+  Durée cible : 5-6 minutes
+  Cas de démo principal : Koffi SERGE (client multi-numéros)
+════════════════════════════════════════════════════════════════════
+
+
+───────────────────────────────────────────────────────────────────
+  1. ACCROCHE  (20 s)
+───────────────────────────────────────────────────────────────────
+
+« Aujourd'hui, un conseiller jongle entre 5 ou 6 outils pour traiter
+un seul appel : CRM, facturation, ticketing, supervision, Orange
+Money, base de connaissances. Résultat : du temps perdu, des
+clients qui patientent, des erreurs de saisie.
+
+HERMÈS Widget, c'est l'inverse : un seul compagnon, toujours à
+portée, qui ramène l'essentiel du métier dans un espace minimal,
+sans jamais voler la place de l'outil principal. »
+
+
+───────────────────────────────────────────────────────────────────
+  2. LE PROBLÈME  (30 s)
+───────────────────────────────────────────────────────────────────
+
+« Trois irritants reviennent systématiquement chez les conseillers :
+
+  • Le contexte client est dispersé : il faut ouvrir 3 onglets pour
+    avoir une Vue 360 complète.
+
+  • Quand un client a PLUSIEURS numéros — c'est de plus en plus
+    fréquent : un mobile perso, un fixe domicile, un Orange Money,
+    parfois un compte Orange Banque — naviguer entre eux est un
+    casse-tête.
+
+  • Les actions courantes sont enfouies : créer un case, voir le
+    scoring, consulter une facture — c'est 5 à 10 clics à chaque
+    fois.
+
+Le widget répond à ces trois douleurs. »
+
+
+───────────────────────────────────────────────────────────────────
+  3. TOUR DU WIDGET  (2 min 30)
+───────────────────────────────────────────────────────────────────
+
+« On va prendre un cas concret : Koffi SERGE. C'est un client
+typique de demain — 3 numéros, plusieurs services différents
+sur chacun. »
+
+  ▸ ÉTAPE 1 — Le format
+
+  « Regardez la taille — c'est volontaire. Le widget reste collé au
+  bord de l'écran, vous gardez vos outils métier à côté. Notre
+  philosophie : léger au max, jamais intrusif. »
+
+  ▸ ÉTAPE 2 — La file d'attente
+
+  « À l'ouverture, votre file en temps réel. Vous voyez Koffi en
+  tête : qui attend, le motif, la priorité. Un clic pour prendre
+  l'appel. Et si vous quittez sa fiche pour traiter autre chose,
+  l'icône profil à côté du chrono vous y ramène en un clic. »
+
+  ▸ ÉTAPE 3 — La Vue 360
+
+  « Voici le cœur du widget. En en-tête : nom, segment, numéro
+  principal, badge VIP si applicable, et un timer DMT qui passe
+  au vert / orange / rouge.
+
+  Si Koffi a déjà appelé aujourd'hui, un bandeau rouge vous
+  prévient — fini les clients qui répètent leur histoire à
+  3 conseillers différents.
+
+  En dessous, 4 onglets : Mobile, Orange Money, Fibre, Cases. »
+
+  ▸ ÉTAPE 4 — Le sélecteur de numéro  (LA NOUVEAUTÉ CLÉ)
+
+  « Et voilà la nouveauté majeure : dans chaque onglet, une barre
+  de chips horizontaux liste UNIQUEMENT les numéros éligibles
+  au service.
+
+  Sur l'onglet Mobile : ses 3 numéros (Principal, Domicile,
+  Bureau) — tous ont une offre Mobile.
+
+  Sur Orange Money : seulement 2 numéros — le Principal a un
+  compte OM avec coffre-fort, le Bureau a un compte Orange
+  Banque avec carte Visa virtuelle. C'est une DISTINCTION
+  importante qu'on faisait mal avant.
+
+  Sur Fibre : 2 numéros — le Domicile en Starter 50 Mb/s, le
+  Bureau en Plus 200 Mb/s.
+
+  Chaque onglet a sa propre sélection — vous pouvez regarder
+  le Bureau côté Fibre tout en gardant le Principal côté OM. »
+
+  ▸ ÉTAPE 5 — Le contenu DYNAMIQUE par numéro
+
+  « Et tout suit la sélection en temps réel : la consommation,
+  les contrats, les échéances d'abonnement, les factures, le
+  type de compte OM ou Orange Banque, la présence ou non d'un
+  coffre, d'une carte Visa.
+
+  Plus jamais de cas où le conseiller croit voir les infos du
+  Mobile alors qu'il regarde celles du Fixe. »
+
+  ▸ ÉTAPE 6 — L'onglet Cases
+
+  « Le dossier complet du client : toutes ses réclamations,
+  demandes, dérangements — actifs et historiques.
+
+  En haut : son SCORING — Qualité payeur, Segment Valeur, CSI,
+  NPS. Le conseiller voit immédiatement à qui il a affaire.
+
+  En dessous : filtre par statut (Ouvert / En cours / Clôturé…),
+  barre SLA dynamique sur les cases actifs, gravité, agent en
+  charge.
+
+  Si un case est à 90 % du SLA, vous le voyez tout de suite. »
+
+  ▸ ÉTAPE 7 — Les actions rapides
+
+  « En bas de la Vue 360, deux boutons toujours visibles :
+  Créer un Case et Actions contextuelles selon le motif.
+  Un clic, pas dix. »
+
+  ▸ ÉTAPE 8 — L'Assistant IA
+
+  « Derrière tout ça, un assistant IA qui aide à qualifier le
+  case, suggère la corbeille, prépare le résumé. Le conseiller
+  valide. L'IA propose, l'humain décide. »
+
+
+───────────────────────────────────────────────────────────────────
+  4. LA VALEUR  (45 s)
+───────────────────────────────────────────────────────────────────
+
+« Concrètement, pour Orange :
+
+  • DMT réduit  — moins de clics, moins de bascules entre outils.
+
+  • Qualité de réponse en hausse  — le conseiller voit le BON
+    numéro avec les BONNES infos. Plus de confusion entre les
+    lignes d'un même client.
+
+  • Distinction Orange Money / Orange Banque enfin claire — un
+    enjeu majeur avec la montée en charge d'Orange Banque.
+
+  • Expérience client cohérente — un client multicontact est
+    identifié dès la prise d'appel, son scoring est visible dans
+    l'onglet Cases au moment où on traite son dossier.
+
+  • Adoption rapide — l'interface est familière, basée sur la
+    Vue 360 web existante. Pas besoin de 2 semaines de formation. »
+
+
+───────────────────────────────────────────────────────────────────
+  5. CLÔTURE  (20 s)
+───────────────────────────────────────────────────────────────────
+
+« HERMÈS Widget, ce n'est pas un outil de plus — c'est la couche
+qui rassemble tous les autres.
+
+Léger. Contextuel. Multi-numéros. Et qui fait gagner du temps
+à chaque appel.
+
+Des questions ? »
+
+
+───────────────────────────────────────────────────────────────────
+  6. PLAN B — QUESTIONS PIÈGES
+───────────────────────────────────────────────────────────────────
+
+Q : « Et la sécurité ? »
+R : Authentification SSO Orange, pas de données stockées localement,
+    audit log côté superviseur.
+
+Q : « Et si l'IA se trompe ? »
+R : Le conseiller valide toujours. L'IA propose, l'humain décide.
+
+Q : « Compatibilité ? »
+R : Windows desktop, intégration native avec les outils Orange
+    existants. Synchronisation avec la Vue 360 web via Code Connect.
+
+Q : « Pourquoi avoir séparé Orange Money et Orange Banque ? »
+R : Ce sont DEUX produits distincts avec des règles différentes
+    (KYC, plafonds, services associés). Un compte Orange Banque
+    peut porter une carte Visa virtuelle — pas un compte OM
+    classique. Les confondre, c'est une source d'erreurs côté
+    conseiller.
+
+Q : « Et si un client n'a qu'un seul numéro ? »
+R : La barre de sélection ne s'affiche qu'avec un seul chip — pas
+    de friction. L'expérience est la même qu'avant pour les
+    clients simples.
+
+Q : « Roadmap ? »
+R : Code Connect avec la Vue 360 web, mode offline pour les
+    agences, voice-to-text sur les appels en direct.
+
+
+───────────────────────────────────────────────────────────────────
+  7. PARCOURS DÉMO RECOMMANDÉ
+───────────────────────────────────────────────────────────────────
+
+  1. Connexion → profil Call Center
+  2. File d'attente : pointer Koffi SERGE en tête
+  3. Prendre l'appel → Vue 360 s'ouvre sur le numéro Principal
+  4. Onglet Mobile : montrer les 3 chips → switcher sur Bureau
+     pour montrer que la conso change
+  5. Onglet Orange Money : chip Principal = OM + Coffre / chip
+     Bureau = Orange Banque + Visa — INSISTER sur la distinction
+  6. Onglet Fibre : chip Domicile (Starter 50) / chip Bureau
+     (Plus 200) — montrer les factures qui suivent
+  7. Onglet Cases : scoring en haut + 3 cases avec SLA
+  8. Bouton Créer un Case → assistant IA → valider rapidement
+  9. Retour file → traiter Kouadio ASSI (client mono-numéro
+     pour le contraste)
+
+Durée totale : ~5 min en démo fluide, 7-8 min avec questions.
+
+
+═══════════════════════════════════════════════════════════════════
+  BONNE DÉMO  💪
+═══════════════════════════════════════════════════════════════════

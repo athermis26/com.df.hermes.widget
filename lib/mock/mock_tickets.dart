@@ -1,5 +1,10 @@
+import '../models/client.dart';
 import '../models/ticket.dart';
 import 'mock_data.dart';
+
+/// Lookup par préfixe de nom — robuste au réordonnancement de `mockClients`.
+Client _by(String prefix) =>
+    mockClients.firstWhere((c) => c.nom.startsWith(prefix));
 
 /// File d'attente Call Center du moment (tickets en attente — le conseiller
 /// n'est pas encore en ligne avec eux). `createdAt` = arrivée dans la file.
@@ -7,8 +12,16 @@ final List<Ticket> mockTicketsCallCenter = () {
   final now = DateTime.now();
   return [
     Ticket(
+      id: 'CC-2026-04424',
+      client: _by('Koffi'),
+      motif: TicketMotif.blocageOrangeMoney,
+      priority: TicketPriority.eleve,
+      corbeille: 'Call Center · CI',
+      createdAt: now.subtract(const Duration(minutes: 3, seconds: 50)),
+    ),
+    Ticket(
       id: 'CC-2026-04421',
-      client: mockClients[0], // K. ASSI
+      client: _by('Kouadio'),
       motif: TicketMotif.rechargeImpossible,
       priority: TicketPriority.urgent,
       corbeille: 'Call Center · CI',
@@ -16,7 +29,7 @@ final List<Ticket> mockTicketsCallCenter = () {
     ),
     Ticket(
       id: 'CC-2026-04422',
-      client: mockClients[1], // M. TRAORÉ (VIP)
+      client: _by('Mariam'),
       motif: TicketMotif.reclamationFacture,
       priority: TicketPriority.eleve,
       corbeille: 'Call Center · CI',
@@ -24,7 +37,7 @@ final List<Ticket> mockTicketsCallCenter = () {
     ),
     Ticket(
       id: 'CC-2026-04423',
-      client: mockClients[2], // SCI ELEPHANT BTP
+      client: _by('SCI'),
       motif: TicketMotif.problemeFibre,
       priority: TicketPriority.normal,
       corbeille: 'Call Center · Pro',
@@ -37,8 +50,17 @@ final List<Ticket> mockTicketsAgence = () {
   final now = DateTime.now();
   return [
     Ticket(
+      id: 'AG-2026-10005',
+      client: _by('Koffi'),
+      motif: TicketMotif.demandeOffre,
+      priority: TicketPriority.normal,
+      corbeille: 'Agence Cocody II Plateaux',
+      createdAt: now.subtract(const Duration(minutes: 4)),
+      source: TicketSource.accueil,
+    ),
+    Ticket(
       id: 'AG-2026-10001',
-      client: mockClients[0],
+      client: _by('Kouadio'),
       motif: TicketMotif.perteSim,
       priority: TicketPriority.urgent,
       corbeille: 'Agence Cocody II Plateaux',
@@ -47,7 +69,7 @@ final List<Ticket> mockTicketsAgence = () {
     ),
     Ticket(
       id: 'AG-2026-10002',
-      client: mockClients[1],
+      client: _by('Mariam'),
       motif: TicketMotif.demandeOffre,
       priority: TicketPriority.normal,
       corbeille: 'Agence Cocody II Plateaux',
@@ -56,7 +78,7 @@ final List<Ticket> mockTicketsAgence = () {
     ),
     Ticket(
       id: 'AG-2026-10003',
-      client: mockClients[2],
+      client: _by('SCI'),
       motif: TicketMotif.reclamationFacture,
       priority: TicketPriority.eleve,
       corbeille: 'Agence Cocody II Plateaux',
@@ -65,7 +87,7 @@ final List<Ticket> mockTicketsAgence = () {
     ),
     Ticket(
       id: 'AG-2026-10004',
-      client: mockClients[0],
+      client: _by('Kouadio'),
       motif: TicketMotif.configurationApn,
       priority: TicketPriority.faible,
       corbeille: 'Agence Cocody II Plateaux',
@@ -79,8 +101,17 @@ final List<Ticket> mockTicketsDigital = () {
   final now = DateTime.now();
   return [
     Ticket(
+      id: 'DG-2026-77127',
+      client: _by('Koffi'),
+      motif: TicketMotif.reclamationFacture,
+      priority: TicketPriority.eleve,
+      corbeille: 'Digital · WhatsApp',
+      createdAt: now.subtract(const Duration(minutes: 7)),
+      source: TicketSource.whatsapp,
+    ),
+    Ticket(
       id: 'DG-2026-77124',
-      client: mockClients[1],
+      client: _by('Mariam'),
       motif: TicketMotif.blocageOrangeMoney,
       priority: TicketPriority.eleve,
       corbeille: 'Digital · Facebook',
@@ -89,7 +120,7 @@ final List<Ticket> mockTicketsDigital = () {
     ),
     Ticket(
       id: 'DG-2026-77123',
-      client: mockClients[0],
+      client: _by('Kouadio'),
       motif: TicketMotif.configurationApn,
       priority: TicketPriority.normal,
       corbeille: 'Digital · Email',
@@ -98,7 +129,7 @@ final List<Ticket> mockTicketsDigital = () {
     ),
     Ticket(
       id: 'DG-2026-77125',
-      client: mockClients[2],
+      client: _by('SCI'),
       motif: TicketMotif.problemeFibre,
       priority: TicketPriority.normal,
       corbeille: 'Digital · WhatsApp',
@@ -107,7 +138,7 @@ final List<Ticket> mockTicketsDigital = () {
     ),
     Ticket(
       id: 'DG-2026-77126',
-      client: mockClients[0],
+      client: _by('Kouadio'),
       motif: TicketMotif.demandeOffre,
       priority: TicketPriority.faible,
       corbeille: 'Digital · Twitter',

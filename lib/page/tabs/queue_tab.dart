@@ -151,7 +151,10 @@ class _QueueTabState extends State<QueueTab> {
     _prendre(_tickets.first);
   }
 
-  void _voirFiche(Ticket t) => TicketSelection.instance.select(t);
+  void _voirFiche(Ticket t) {
+    TicketSelection.instance.select(t);
+    PanelNav.instance.go(PanelRoute.vue360);
+  }
 
   void _raccrocher() {
     final t = ConseillerState.instance.activeTicket.value;
