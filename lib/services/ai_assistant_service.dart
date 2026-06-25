@@ -110,7 +110,7 @@ class MockAiAssistantService implements AiAssistantService {
       return 'Data : ${formatGo(co.dataRestanteGo)} restant sur '
           '${formatGo(co.dataTotaleGo)}. '
           'Crédit : ${formatFcfa(co.creditFcfa)}. SMS : ${co.smsRestants}. '
-          '${co.passActifs.isEmpty ? '' : 'Pass actifs : ${co.passActifs.join(', ')}.'}';
+          '${co.passActifs.isEmpty ? '' : 'Pass actifs : ${co.passActifs.map((p) => p.nom).join(', ')}.'}';
     }
 
     // Motif-specific

@@ -49,6 +49,7 @@ class AppIcons {
   static const AppIcon tv = HugeIcons.strokeRoundedTv01;
   static const AppIcon wallet = HugeIcons.strokeRoundedWallet01;
   static const AppIcon openExternal = HugeIcons.strokeRoundedLinkSquare01;
+  static const AppIcon pass = HugeIcons.strokeRoundedEnergy;
 
   // ── Assistant IA ────────────────────────────────────────────
   static const AppIcon sparkle = HugeIcons.strokeRoundedSparkles;
@@ -71,6 +72,7 @@ class AppIcons {
   static const AppIcon sendToMobile = HugeIcons.strokeRoundedSendToMobile;
   static const AppIcon antenna = HugeIcons.strokeRoundedAntenna;
   static const AppIcon power = HugeIcons.strokeRoundedPower;
+  static const AppIcon calendar = HugeIcons.strokeRoundedCalendar03;
   static const AppIcon disturb = HugeIcons.strokeRoundedShieldBan;
   static const AppIcon refresh = HugeIcons.strokeRoundedRefresh;
   static const AppIcon checkCircle = HugeIcons.strokeRoundedCheckmarkCircle02;
@@ -116,5 +118,6 @@ class AppIcons {
   static const AppIcon sourceWhatsapp = HugeIcons.strokeRoundedWhatsapp;
   static const AppIcon sourceFacebook = HugeIcons.strokeRoundedFacebook01;
   static const AppIcon sourceTwitter = HugeIcons.strokeRoundedTwitter;
+  static const AppIcon sourceTelegram = HugeIcons.strokeRoundedTelegram;
   static const AppIcon sourceAccueil = HugeIcons.strokeRoundedBuilding01;
 }

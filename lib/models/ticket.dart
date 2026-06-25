@@ -55,7 +55,7 @@ extension TicketPriorityX on TicketPriority {
 }
 
 /// Source d'un ticket Digital (email / WhatsApp / Facebook…).
-enum TicketSource { telephone, email, whatsapp, facebook, twitter, accueil }
+enum TicketSource { telephone, email, whatsapp, facebook, twitter, telegram, accueil }
 
 class Ticket {
   final String id;

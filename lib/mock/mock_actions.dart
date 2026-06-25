@@ -34,8 +34,17 @@ final List<QuickAction> mockActions = [
     id: 'reactiv_fibre',
     label: 'Réactiver la Fibre',
     description: 'Relance le service après une coupure ou un impayé régularisé.',
-    icon: AppIcons.wifi,
-    color: AppColors.primary,
+    icon: AppIcons.refresh,
+    color: AppColors.success,
+    allowedProfils: ProfilConseiller.values,
+  ),
+  QuickAction(
+    id: 'restitution_jours',
+    label: 'Restitution jours',
+    description:
+        'Crédite des jours d\'abonnement après une interruption de service.',
+    icon: AppIcons.calendar,
+    color: AppColors.info,
     allowedProfils: ProfilConseiller.values,
   ),
   QuickAction(
@@ -97,5 +106,21 @@ final List<QuickAction> mockActions = [
     allowedProfils: [ProfilConseiller.superviseur],
     sensitive: true,
     hermesPath: '/client/{id}/actions/remettre-en-service',
+  ),
+  QuickAction(
+    id: 'gerer_tv',
+    label: 'Gérer TV',
+    description: 'Provisionnement, bouquets, équipement Orange TV.',
+    icon: AppIcons.tv,
+    color: AppColors.primary,
+    allowedProfils: ProfilConseiller.values,
+  ),
+  QuickAction(
+    id: 'creer_case',
+    label: 'Créer une case',
+    description: 'Ouvre un nouveau dossier pour ce client.',
+    icon: AppIcons.contracts,
+    color: AppColors.info,
+    allowedProfils: ProfilConseiller.values,
   ),
 ];

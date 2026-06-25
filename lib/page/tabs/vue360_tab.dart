@@ -10,7 +10,10 @@ import '../../core/panel_nav.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/ticket_selection.dart';
 import '../../models/client.dart';
+import '../../models/quick_action.dart';
 import '../../models/ticket.dart';
+import '../../mock/mock_actions.dart';
+import '../../widgets/action_sheet.dart';
 import '../../widgets/hi.dart';
 import '../../widgets/motif_actions_sheet.dart';
 import '../../widgets/motif_tag.dart';
@@ -39,7 +42,7 @@ class _Vue360TabState extends State<Vue360Tab>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 4, vsync: this);
+    _tabs = TabController(length: 5, vsync: this);
     // Rafraîchit l'UI toutes les secondes (comme QueueTab)
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
@@ -80,6 +83,7 @@ class _Vue360TabState extends State<Vue360Tab>
               _DataMobileTab(client: client),
               _OrangeMoneyTab(client: client),
               _FixeInternetTab(client: client),
+              _TvTab(client: client),
               _CasesTab(client: client),
             ],
           ),
@@ -214,6 +218,7 @@ class _UniverseTabBar extends StatelessWidget {
           _UniverseTabLabel(icon: AppIcons.smartphone, label: 'Mobile'),
           _UniverseTabLabel(icon: AppIcons.wallet, label: 'Orange Money'),
           _UniverseTabLabel(icon: AppIcons.wifi, label: 'Fibre'),
+          _UniverseTabLabel(icon: AppIcons.tv, label: 'TV'),
           _UniverseTabLabel(icon: AppIcons.contracts, label: 'Cases'),
         ],
       ),
@@ -292,7 +297,11 @@ class _DataMobileTabState extends State<_DataMobileTab> {
             children: [
               if (widget.client.contactsAujourdhui > 1)
                 _RecurrenceBanner(count: widget.client.contactsAujourdhui),
-              _ConsommationCard(conso: conso),
+              _MobileLineCard(
+                numero: selected,
+                conso: conso,
+                client: widget.client,
+              ),
               // if (mobileContrats.isNotEmpty)
               //   _ContratsCard(title: 'Mobile', contrats: mobileContrats),
               // if (selected.echeanceAbonnement != null)
@@ -305,7 +314,7 @@ class _DataMobileTabState extends State<_DataMobileTab> {
   }
 }
 
-// ─── Tab 2 : Internet & Fixe ─────────────────────────────────────
+// ─── Tab 2 : Fibre (abonnements au niveau client) ────────────────
 
 class _FixeInternetTab extends StatefulWidget {
   final Client client;
@@ -320,46 +329,149 @@ class _FixeInternetTabState extends State<_FixeInternetTab> {
 
   @override
   Widget build(BuildContext context) {
-    final numeros = widget.client.numerosPour(NumeroService.fixeInternet);
-    if (numeros.isEmpty) {
+    final abos = widget.client.abonnementsFibre;
+    if (abos.isEmpty) {
       return _EmptyUniverse(
         icon: AppIcons.wifi,
-        title: 'Pas d\'installation fixe',
+        title: 'Pas d\'abonnement Fibre / Internet',
         subtitle:
-            'Aucune offre Fixe, Internet, Fibre ou TV active pour ce client.',
+            'Aucune offre Fibre, Internet ou Fixe active pour ce client.',
       );
     }
-    final idx = _selectedIndex.clamp(0, numeros.length - 1);
-    final selected = numeros[idx];
-    final fixeContrats = selected.contrats
-        .where((c) =>
-            c.service == 'Fixe' ||
-            c.service == 'Internet' ||
-            c.service == 'Fibre' ||
-            c.service == 'OrangeTV')
-        .toList();
+    final idx = _selectedIndex.clamp(0, abos.length - 1);
+    final selected = abos[idx];
 
     return Column(
       children: [
-        _NumeroChipsBar(
-          numeros: numeros,
-          selectedIndex: idx,
-          onSelect: (i) => setState(() => _selectedIndex = i),
-        ),
+        if (abos.length > 1)
+          _AbonnementChipsBar(
+            labels: [for (final a in abos) a.adresse],
+            selectedIndex: idx,
+            onSelect: (i) => setState(() => _selectedIndex = i),
+          ),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
             children: [
-              _ContratsCard(
-                  title: 'Réseau & Installation', contrats: fixeContrats),
-              _FixeReseauCard(contrats: fixeContrats),
-              if (selected.echeanceAbonnement != null)
-                _EcheanceCard(echeance: selected.echeanceAbonnement!),
-              _FacturesCard(factures: selected.factures),
+              _FixeInternetLineCard(
+                abonnement: selected,
+                client: widget.client,
+              ),
+              if (selected.factures.isNotEmpty)
+                _FacturesCard(factures: selected.factures),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+// ─── Tab : TV (abonnements au niveau client) ─────────────────────
+
+class _TvTab extends StatefulWidget {
+  final Client client;
+  const _TvTab({required this.client});
+
+  @override
+  State<_TvTab> createState() => _TvTabState();
+}
+
+class _TvTabState extends State<_TvTab> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final abos = widget.client.abonnementsTv;
+    if (abos.isEmpty) {
+      return _EmptyUniverse(
+        icon: AppIcons.tv,
+        title: 'Aucun abonnement TV',
+        subtitle: 'Ce client n\'a pas d\'abonnement Orange TV actif.',
+      );
+    }
+    final idx = _selectedIndex.clamp(0, abos.length - 1);
+    final selected = abos[idx];
+
+    return Column(
+      children: [
+        if (abos.length > 1)
+          _AbonnementChipsBar(
+            labels: [for (final a in abos) a.adresse],
+            selectedIndex: idx,
+            onSelect: (i) => setState(() => _selectedIndex = i),
+          ),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+            children: [
+              _TvLineCard(abonnement: selected, client: widget.client),
+              if (selected.factures.isNotEmpty)
+                _FacturesCard(factures: selected.factures),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Barre de chips pour sélectionner un abonnement (Fibre / TV) par adresse.
+/// Calquée sur [_NumeroChipsBar] mais avec un libellé simple.
+class _AbonnementChipsBar extends StatelessWidget {
+  final List<String> labels;
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
+  const _AbonnementChipsBar({
+    required this.labels,
+    required this.selectedIndex,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 38,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: P.surface,
+        border: Border(bottom: BorderSide(color: P.borderSoft)),
+      ),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: labels.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 6),
+        itemBuilder: (_, i) {
+          final active = i == selectedIndex;
+          return Material(
+            color: active ? AppColors.primary : Colors.white10,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: BorderSide(
+                color: active ? AppColors.primary : P.borderSoft,
+              ),
+            ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () => onSelect(i),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                child: Center(
+                  child: Text(
+                    labels[i],
+                    style: TextStyle(
+                      color: active ? Colors.white : P.text,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -404,8 +516,8 @@ class _OrangeMoneyTabState extends State<_OrangeMoneyTab> {
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
             children: [
               if (compte != null) _OmAccountCard(compte: compte),
-              if (compte != null && compte.coffre != null)
-                _OmCoffreCard(coffre: compte.coffre!),
+              // if (compte != null && compte.coffre != null)
+              //   _OmCoffreCard(coffre: compte.coffre!),
               if (compte != null && compte.visa != null)
                 _OmVisaCard(visa: compte.visa!),
               if (compte != null)
@@ -435,18 +547,11 @@ class _CasesTabState extends State<_CasesTab> {
   Widget build(BuildContext context) {
     final cases = widget.client.cases;
     if (cases.isEmpty) {
-      return Column(
-        children: [
-          _ScoringCard(scoring: widget.client.scoring),
-          Expanded(
-            child: _EmptyUniverse(
-              icon: AppIcons.contracts,
-              title: 'Aucun case ouvert',
-              subtitle:
-                  'Ce client n\'a aucun dossier en cours. Crée un case depuis la barre d\'actions.',
-            ),
-          ),
-        ],
+      return _EmptyUniverse(
+        icon: AppIcons.contracts,
+        title: 'Aucun case ouvert',
+        subtitle:
+            'Ce client n\'a aucun dossier en cours. Crée un case depuis la barre d\'actions.',
       );
     }
 
@@ -546,7 +651,6 @@ class _CasesTabState extends State<_CasesTab> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
             children: [
-              _ScoringCard(scoring: widget.client.scoring),
               if (filtered.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 24),
@@ -913,6 +1017,31 @@ class _ClientBar extends StatelessWidget {
     }
   }
 
+  /// Renvoie l'agent vers la Vue 360 web pour ce client.
+  /// Reprend la convention déjà utilisée dans [ActionSheet._openInHermes].
+  void _openVue360Web(BuildContext context) {
+    final url = '/client/${client.id}/vue360';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: P.surface,
+        duration: const Duration(seconds: 3),
+        content: Row(
+          children: [
+            const Hi(AppIcons.openExternal,
+                color: AppColors.primary, size: 16),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Direction HERMÈS web : $url',
+                style: TextStyle(color: P.text, fontSize: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<DateTime?>(
@@ -981,8 +1110,17 @@ class _ClientBar extends StatelessWidget {
                   child: const Text('VIP',
                       style: TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.w700)),
                 ),
+              // « Voir plus » → renvoie vers la Vue 360 web pour ce client
+              IconButton(
+                tooltip: 'Voir plus (HERMÈS web)',
+                onPressed: () => _openVue360Web(context),
+                icon: const Hi(AppIcons.openExternal,
+                    size: 16, color: AppColors.primary),
+                padding: const EdgeInsets.all(4),
+                constraints: const BoxConstraints(),
+              ),
 
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
 
               Row(
                 spacing: 8,
@@ -1294,12 +1432,22 @@ class _SectionState extends State<_Section> {
 
   @override
   Widget build(BuildContext context) {
+    // Aligné sur .card / .card-header / .card-title du web
+    // (hermes_final_fixed.html) en gardant un padding compact adapté
+    // à la largeur du widget.
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: P.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: P.borderSoft),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1308,19 +1456,18 @@ class _SectionState extends State<_Section> {
             onTap: () => setState(() => _open = !_open),
             borderRadius: BorderRadius.circular(10),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
+              padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
               child: Row(
                 children: [
-                  Hi(widget.icon, size: 16, color: AppColors.primary),
-                  const SizedBox(width: 8),
+                  Hi(widget.icon, size: 14, color: AppColors.primary),
+                  const SizedBox(width: 7),
                   Expanded(
                     child: Text(
                       widget.title,
                       style: TextStyle(
                         color: P.text,
-                        fontSize: 12,
+                        fontSize: 12.5,
                         fontWeight: FontWeight.w700,
-                        letterSpacing: 0.2,
                       ),
                     ),
                   ),
@@ -1337,7 +1484,7 @@ class _SectionState extends State<_Section> {
           AnimatedCrossFade(
             firstChild: const SizedBox.shrink(),
             secondChild: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
               child: widget.child,
             ),
             crossFadeState: _open ? CrossFadeState.showSecond : CrossFadeState.showFirst,
@@ -1349,130 +1496,245 @@ class _SectionState extends State<_Section> {
   }
 }
 
-// ─── Scoring (affiché dans l'onglet Cases) ──────────────────────
+// ─── Ligne Mobile (carte unifiée n° + conso + actions) ──────────
 
-class _ScoringCard extends StatelessWidget {
-  final Scoring scoring;
-  const _ScoringCard({required this.scoring});
+class _MobileLineCard extends StatelessWidget {
+  final Numero numero;
+  final Consommation conso;
+  final Client client;
+  const _MobileLineCard({
+    required this.numero,
+    required this.conso,
+    required this.client,
+  });
 
-  Color _payeurColor(String s) {
-    switch (s) {
-      case 'Excellent':
-        return AppColors.success;
-      case 'Bon':
-        return AppColors.info;
-      case 'Risque':
-        return AppColors.danger;
-      default:
-        return P.muted;
-    }
+  static String _formatMinutes(int m) {
+    if (m <= 0) return '0 min';
+    if (m < 60) return '$m min';
+    final h = m ~/ 60;
+    final r = m % 60;
+    return r == 0 ? '${h}h' : '${h}h${r.toString().padLeft(2, '0')}';
   }
 
-  Color _valueColor(String s) {
-    switch (s) {
-      case 'Gold':
-        return AppColors.warning;
-      case 'Silver':
-        return P.muted;
-      case 'Bronze':
-        return const Color(0xFFCD7F32);
-      default:
-        return P.muted;
+  Color _ratioColor(double pct) {
+    if (pct < 0.15) return AppColors.danger;
+    if (pct < 0.35) return AppColors.warning;
+    return AppColors.success;
+  }
+
+  QuickAction? _action(String id) {
+    for (final a in mockActions) {
+      if (a.id == id) return a;
     }
+    return null;
+  }
+
+  void _openAction(BuildContext context, String id) {
+    final a = _action(id);
+    if (a == null) return;
+    ActionSheet.show(context, a, client);
   }
 
   @override
   Widget build(BuildContext context) {
-    return _Section(
-      icon: AppIcons.scoring,
-      title: 'Scoring & Fidélité',
+    final mobileContrat = numero.contrats.firstWhere(
+      (c) => c.service == 'Mobile',
+      orElse: () => const Contrat(
+        id: '-',
+        service: 'Mobile',
+        statut: 'Actif',
+        offre: 'Forfait Mobile',
+      ),
+    );
+    final libelle = numero.libelle ?? 'Principale';
+    final dataPct =
+        conso.dataTotaleGo == 0 ? 0.0 : conso.dataRestanteGo / conso.dataTotaleGo;
+    final voixPct = conso.voixMinTotales == 0
+        ? 0.0
+        : conso.voixMinRestantes / conso.voixMinTotales;
+    final smsPct =
+        conso.smsTotaux == 0 ? 0.0 : conso.smsRestants / conso.smsTotaux;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: P.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: P.borderSoft),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Entête : numéro + libellé · offre · techno
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Hi(AppIcons.smartphone, size: 16, color: AppColors.primary),
+              const SizedBox(width: 8),
               Expanded(
-                child: _ScoringBadge(
-                  label: 'Qualité payeur',
-                  value: scoring.qualitePayeur,
-                  color: _payeurColor(scoring.qualitePayeur),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: _ScoringBadge(
-                  label: 'Segment valeur',
-                  value: scoring.segmentValeur,
-                  color: _valueColor(scoring.segmentValeur),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      numero.numero,
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 2,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          '$libelle · ${mobileContrat.offre}',
+                          style: TextStyle(color: P.muted, fontSize: 10.5),
+                        ),
+                        Text(
+                          '4G',
+                          style: TextStyle(
+                            color: AppColors.info,
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Row(
+          const SizedBox(height: 12),
+          // Jauges Data / Voix / SMS — chaque jauge inclut, en-dessous,
+          // les pass actifs qui couvrent ce type d'usage.
+          _MobileGaugeRow(
+            icon: AppIcons.consumption,
+            label: 'Data',
+            value:
+                '${formatGo(conso.dataRestanteGo)} / ${formatGo(conso.dataTotaleGo)}',
+            pct: dataPct,
+            color: _ratioColor(dataPct),
+            passes: conso.passActifs
+                .where((p) => p.type == PassType.data)
+                .toList(),
+          ),
+          const SizedBox(height: 10),
+          _MobileGaugeRow(
+            icon: AppIcons.landline,
+            label: 'Voix',
+            value:
+                '${_formatMinutes(conso.voixMinRestantes)} / ${conso.voixMinTotales} min',
+            pct: voixPct,
+            color: _ratioColor(voixPct),
+            passes: conso.passActifs
+                .where((p) => p.type == PassType.voix)
+                .toList(),
+          ),
+          const SizedBox(height: 10),
+          _MobileGaugeRow(
+            icon: AppIcons.sendToMobile,
+            label: 'SMS',
+            value: '${conso.smsRestants} / ${conso.smsTotaux}',
+            pct: smsPct,
+            color: _ratioColor(smsPct),
+            passes: conso.passActifs
+                .where((p) => p.type == PassType.sms)
+                .toList(),
+          ),
+          const SizedBox(height: 12),
+          // Actions
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
-              Expanded(
-                child: _Gauge(
-                  label: 'CSI',
-                  value: scoring.csi,
-                  max: 100,
-                  color: AppColors.primary,
-                ),
+              _PillAction(
+                icon: AppIcons.power,
+                label: 'Suspendre',
+                color: AppColors.danger,
+                onTap: () => _openAction(context, 'suspendre_compte'),
               ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: _Gauge(
-                  label: 'NPS',
-                  value: scoring.nps + 100,
-                  max: 200,
-                  displayValue: scoring.nps,
-                  color: AppColors.info,
-                ),
+              _PillAction(
+                icon: AppIcons.sim,
+                label: 'SIM SWAP',
+                color: AppColors.info,
+                onTap: () => _openAction(context, 'sim_swap'),
               ),
             ],
           ),
-          if (scoring.dernierPassageBoutique != null) ...[
-            const SizedBox(height: 6),
-            _KvLine(
-              k: 'Dernière visite',
-              v: formatDate(scoring.dernierPassageBoutique!),
-            ),
-          ],
         ],
       ),
     );
   }
 }
 
-class _ScoringBadge extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  const _ScoringBadge({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
+/// Une ligne d'un pass actif : nom + avantages + date d'expiration.
+/// Inspirée du popover « Pass actifs » côté web (vue 360).
+class _PassActifRow extends StatelessWidget {
+  final PassActif pass;
+  const _PassActifRow({required this.pass});
+
+  Color _expiryColor(DateTime exp) {
+    final days = exp.difference(DateTime.now()).inDays;
+    if (days < 0) return AppColors.danger;
+    if (days <= 3) return AppColors.warning;
+    return AppColors.success;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final col = _expiryColor(pass.expiration);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.fromLTRB(8, 6, 8, 7),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
+        color: AppColors.primary.withValues(alpha: 0.06),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.20)),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(color: P.muted, fontSize: 9.5)),
-          const SizedBox(height: 1),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  pass.nom,
+                  style: TextStyle(
+                    color: P.text,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Hi(AppIcons.calendar, size: 10, color: col),
+              const SizedBox(width: 3),
+              Text(
+                'Expire le ${formatDate(pass.expiration)}',
+                style: TextStyle(
+                  color: col,
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
           Text(
-            value,
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
+            pass.avantages,
+            style: TextStyle(color: P.muted, fontSize: 10, height: 1.25),
           ),
         ],
       ),
@@ -1480,34 +1742,116 @@ class _ScoringBadge extends StatelessWidget {
   }
 }
 
-class _Gauge extends StatelessWidget {
+/// Une ligne icône + label + barre de progression + valeur, façon screenshot.
+class _MobileGaugeRow extends StatelessWidget {
+  final AppIcon icon;
   final String label;
-  final int value;
-  final int max;
-  final int? displayValue;
+  final String value;
+  final double pct;
   final Color color;
-  const _Gauge({
+  /// Pass actifs qui couvrent cette catégorie d'usage (data / voix / sms).
+  /// Affichés en compact sous la jauge — vide = rien.
+  final List<PassActif> passes;
+  const _MobileGaugeRow({
+    required this.icon,
     required this.label,
     required this.value,
-    required this.max,
+    required this.pct,
     required this.color,
-    this.displayValue,
+    this.passes = const [],
   });
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded(
+            Hi(icon, size: 13, color: P.muted),
+            const SizedBox(width: 6),
+            SizedBox(
+              width: 34,
               child: Text(
                 label,
-                style: TextStyle(color: P.muted, fontSize: 9.5),
+                style: TextStyle(color: P.muted, fontSize: 10.5),
               ),
             ),
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: pct.clamp(0.0, 1.0),
+                  minHeight: 6,
+                  backgroundColor: Colors.white10,
+                  valueColor: AlwaysStoppedAnimation(color),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
             Text(
-              '${displayValue ?? value}',
+              value,
+              style: TextStyle(
+                color: P.text,
+                fontSize: 10.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        // Affiche les pass uniquement si présents — sinon la jauge reste seule.
+        if (passes.isNotEmpty) ...[
+          const SizedBox(height: 5),
+          Padding(
+            // Aligne sous le début du libellé (icône 13 + gap 6).
+            padding: const EdgeInsets.only(left: 19),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < passes.length; i++) ...[
+                  if (i != 0) const SizedBox(height: 4),
+                  _PassActifRow(pass: passes[i]),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Bouton pilule (outline + icône + label) pour les actions de la ligne.
+class _PillAction extends StatelessWidget {
+  final AppIcon icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  const _PillAction({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          border: Border.all(color: color.withValues(alpha: 0.55)),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Hi(icon, size: 13, color: color),
+            const SizedBox(width: 5),
+            Text(
+              label,
               style: TextStyle(
                 color: color,
                 fontSize: 11,
@@ -1516,17 +1860,7 @@ class _Gauge extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 4),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: (value / max).clamp(0, 1),
-            minHeight: 5,
-            backgroundColor: Colors.white10,
-            valueColor: AlwaysStoppedAnimation(color),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -1602,7 +1936,7 @@ class _ConsommationCard extends StatelessWidget {
                       border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: Text(p, style: const TextStyle(color: AppColors.primary, fontSize: 10)),
+                    child: Text(p.nom, style: const TextStyle(color: AppColors.primary, fontSize: 10)),
                   ),
               ],
             ),
@@ -1866,6 +2200,460 @@ class _MiniBadge extends StatelessWidget {
 
 // ─── Fixe & Internet — détails réseau (mock) ─────────────────────
 
+// ─── Ligne Fixe / Internet (carte unifiée box + débits + actions) ─
+
+class _FixeInternetLineCard extends StatelessWidget {
+  final AbonnementFibre abonnement;
+  final Client client;
+  const _FixeInternetLineCard({
+    required this.abonnement,
+    required this.client,
+  });
+
+  QuickAction? _action(String id) {
+    for (final a in mockActions) {
+      if (a.id == id) return a;
+    }
+    return null;
+  }
+
+  void _openAction(BuildContext context, String id) {
+    final a = _action(id);
+    if (a == null) return;
+    ActionSheet.show(context, a, client);
+  }
+
+  Color _dispoColor(double pct) {
+    if (pct >= 99) return AppColors.success;
+    if (pct >= 95) return AppColors.warning;
+    return AppColors.danger;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final d = abonnement.details;
+    final statutLabel = d.connectee ? 'Connectée' : 'Déconnectée';
+    final statutColor = d.connectee ? AppColors.success : AppColors.danger;
+    final incidentLabel = d.incidentEnCours ?? 'Aucun en cours';
+    final incidentColor = d.incidentEnCours == null
+        ? AppColors.success
+        : AppColors.danger;
+    final renew = abonnement.renouvellement;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: P.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: P.borderSoft),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Entête : pastille statut + équipement + (débit max · techno · statut)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 4, right: 8),
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: statutColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      d.equipement,
+                      style: TextStyle(
+                        color: P.text,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${d.debitDescendantMbps} Mbps ${d.techno} · $statutLabel',
+                      style: TextStyle(color: P.muted, fontSize: 10.5),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Tuiles débits + dispo
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _MetricTile(
+                  label: 'Débit ↓',
+                  value: '${d.debitDescendantMbps}',
+                  unit: 'Mb/s',
+                  color: P.text,
+                ),
+              ),
+              Expanded(
+                child: _MetricTile(
+                  label: 'Débit ↑',
+                  value: '${d.debitMontantMbps}',
+                  unit: 'Mb/s',
+                  color: P.text,
+                ),
+              ),
+              Expanded(
+                child: _MetricTile(
+                  label: 'Disponibilité',
+                  value: '${d.dispoPct.toStringAsFixed(1)}%',
+                  unit: '',
+                  color: _dispoColor(d.dispoPct),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Divider(color: P.borderSoft, height: 1),
+          const SizedBox(height: 6),
+          // KV lines
+          _KvLine(k: 'Adresse', v: abonnement.adresse, valueBold: true),
+          _KvLine(k: 'Offre', v: abonnement.offre, valueBold: true),
+          _KvLine(k: 'Équipement', v: d.equipement, valueBold: true),
+          if (abonnement.numeroFixe != null)
+            _KvLine(
+              k: 'Ligne fixe',
+              v: abonnement.numeroFixe!,
+              valueBold: true,
+            ),
+          if (abonnement.montantMensuelFcfa > 0)
+            _KvLine(
+              k: 'Abonnement',
+              v: '${formatFcfa(abonnement.montantMensuelFcfa)} / mois',
+              valueBold: true,
+              valueColor: AppColors.primary,
+            ),
+          if (renew != null)
+            _KvLine(k: 'Renouvellement', v: formatDate(renew), valueBold: true),
+          _KvLine(
+            k: 'Incidents',
+            v: incidentLabel,
+            valueColor: incidentColor,
+            valueBold: true,
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _PillAction(
+                icon: AppIcons.refresh,
+                label: 'Réactiver',
+                color: AppColors.success,
+                onTap: () => _openAction(context, 'reactiv_fibre'),
+              ),
+              _PillAction(
+                icon: AppIcons.calendar,
+                label: 'Restitution jours',
+                color: AppColors.info,
+                onTap: () => _openAction(context, 'restitution_jours'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Ligne TV (carte unifiée Orange TV) ─────────────────────────
+
+class _TvLineCard extends StatelessWidget {
+  final AbonnementTv abonnement;
+  final Client client;
+  const _TvLineCard({required this.abonnement, required this.client});
+
+  QuickAction? _action(String id) {
+    for (final a in mockActions) {
+      if (a.id == id) return a;
+    }
+    return null;
+  }
+
+  void _openAction(BuildContext context, String id) {
+    final a = _action(id);
+    if (a == null) return;
+    ActionSheet.show(context, a, client);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tv = abonnement.details;
+    final compte = tv.compte;
+    final pack = tv.pack;
+    final equipement = tv.equipement;
+    final bouquets = tv.bouquets;
+    final options = tv.options;
+    final nbChaines = tv.nbChaines;
+    final prixMensuel = tv.prixMensuelFcfa;
+    final dateInstallation = tv.dateInstallation;
+    final derniereConnexion = tv.derniereConnexion;
+    final statut = tv.statut;
+    final statutColor = statut == 'Actif'
+        ? AppColors.success
+        : statut == 'Suspendu'
+            ? AppColors.danger
+            : AppColors.warning;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: P.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: P.borderSoft),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Entête : icône TV + titre Orange TV + pack + badge statut
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Hi(AppIcons.tv, size: 16, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Orange TV',
+                      style: TextStyle(
+                        color: P.text,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      pack,
+                      style: TextStyle(color: P.muted, fontSize: 10.5),
+                    ),
+                  ],
+                ),
+              ),
+              _MiniBadge(label: statut, color: statutColor),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Divider(color: P.borderSoft, height: 1),
+          const SizedBox(height: 6),
+          // KV lines — mêmes intitulés que le web (.rs-tv) + enrichissements
+          _KvLine(k: 'Adresse', v: abonnement.adresse, valueBold: true),
+          _KvLine(k: 'N° compte', v: compte, valueBold: true),
+          _KvLine(k: 'Équipement', v: equipement, valueBold: true),
+          if (nbChaines > 0)
+            _KvLine(k: 'Chaînes', v: '$nbChaines incluses', valueBold: true),
+          if (prixMensuel > 0)
+            _KvLine(
+              k: 'Abonnement',
+              v: '${formatFcfa(prixMensuel)} / mois',
+              valueBold: true,
+              valueColor: AppColors.primary,
+            ),
+          if (dateInstallation != null)
+            _KvLine(
+              k: 'Installé le',
+              v: formatDate(dateInstallation),
+              valueBold: true,
+            ),
+          _KvLine(
+            k: 'Dernière connexion',
+            v: derniereConnexion != null ? formatDate(derniereConnexion) : '—',
+            valueBold: true,
+          ),
+          if (bouquets.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Bouquets inclus',
+              style: TextStyle(
+                color: P.muted,
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final b in bouquets)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      b,
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+          if (options.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Options activées',
+              style: TextStyle(
+                color: P.muted,
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final o in options)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.info.withValues(alpha: 0.10),
+                      border: Border.all(
+                        color: AppColors.info.withValues(alpha: 0.30),
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Hi(AppIcons.checkCircle,
+                            size: 10, color: AppColors.info),
+                        const SizedBox(width: 4),
+                        Text(
+                          o,
+                          style: const TextStyle(
+                            color: AppColors.info,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 12),
+          // Actions — Gérer TV / Créer case
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _PillAction(
+                icon: AppIcons.tv,
+                label: 'Gérer TV',
+                color: AppColors.primary,
+                onTap: () => _openAction(context, 'gerer_tv'),
+              ),
+              _PillAction(
+                icon: AppIcons.contracts,
+                label: 'Créer case',
+                color: AppColors.info,
+                onTap: () => _openAction(context, 'creer_case'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Petite tuile chiffre + unité + label en dessous (pour les débits / dispo).
+class _MetricTile extends StatelessWidget {
+  final String label;
+  final String value;
+  final String unit;
+  final Color color;
+  const _MetricTile({
+    required this.label,
+    required this.value,
+    required this.unit,
+    required this.color,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: TextStyle(color: P.muted, fontSize: 10),
+        ),
+        const SizedBox(height: 2),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                color: color,
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            if (unit.isNotEmpty) ...[
+              const SizedBox(width: 2),
+              Text(
+                unit,
+                style: TextStyle(
+                  color: P.muted,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+}
+
 class _FixeReseauCard extends StatelessWidget {
   final List<Contrat> contrats;
   const _FixeReseauCard({required this.contrats});
@@ -1976,7 +2764,7 @@ class _FacturesCard extends StatelessWidget {
     if (factures.isEmpty) {
       return _Section(
         icon: AppIcons.billing,
-        title: 'Factures',
+        title: 'Historique des factures',
         child: Text(
           'Aucune facture pour ce numéro.',
           style: TextStyle(color: P.muted, fontSize: 11),
@@ -1993,7 +2781,7 @@ class _FacturesCard extends StatelessWidget {
 
     return _Section(
       icon: AppIcons.billing,
-      title: 'Factures',
+      title: 'Historique des factures',
       trailing: _MiniBadge(
         label: unpaidCount > 0 ? '$unpaidCount en attente' : 'À jour',
         color: unpaidCount > 0 ? AppColors.warning : AppColors.success,
@@ -2175,14 +2963,14 @@ class _OmAccountCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _Tile(
-                  label: 'Solde principal',
+                  label: 'Solde disponible',
                   value: formatFcfa(compte.soldeFcfa),
                 ),
               ),
               const SizedBox(width: 6),
               Expanded(
                 child: _Tile(
-                  label: 'Plafond mensuel',
+                  label: 'Plafond du compte',
                   value: formatFcfa(compte.plafondMensuelFcfa),
                 ),
               ),

@@ -236,6 +236,8 @@ class _QueueTabState extends State<QueueTab> {
       return (icon: AppIcons.sourceFacebook, color: AppColors.info, label: 'Facebook');
     case TicketSource.twitter:
       return (icon: AppIcons.sourceTwitter, color: P.text, label: 'Twitter');
+    case TicketSource.telegram:
+      return (icon: AppIcons.sourceTelegram, color: AppColors.info, label: 'Telegram');
     case TicketSource.accueil:
       return (icon: AppIcons.sourceAccueil, color: AppColors.primary, label: 'Agence physique');
   }

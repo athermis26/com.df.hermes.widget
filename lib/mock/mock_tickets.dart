@@ -145,6 +145,33 @@ final List<Ticket> mockTicketsDigital = () {
       createdAt: now.subtract(const Duration(hours: 1, minutes: 20)),
       source: TicketSource.twitter,
     ),
+    Ticket(
+      id: 'DG-2026-77128',
+      client: _by('Koffi'),
+      motif: TicketMotif.configurationApn,
+      priority: TicketPriority.normal,
+      corbeille: 'Digital · Telegram',
+      createdAt: now.subtract(const Duration(minutes: 11)),
+      source: TicketSource.telegram,
+    ),
+    Ticket(
+      id: 'DG-2026-77129',
+      client: _by('Mariam'),
+      motif: TicketMotif.rechargeImpossible,
+      priority: TicketPriority.urgent,
+      corbeille: 'Digital · Telegram',
+      createdAt: now.subtract(const Duration(minutes: 2, seconds: 15)),
+      source: TicketSource.telegram,
+    ),
+    Ticket(
+      id: 'DG-2026-77130',
+      client: _by('SCI'),
+      motif: TicketMotif.demandeOffre,
+      priority: TicketPriority.faible,
+      corbeille: 'Digital · Telegram',
+      createdAt: now.subtract(const Duration(minutes: 25)),
+      source: TicketSource.telegram,
+    ),
   ];
 }();
 

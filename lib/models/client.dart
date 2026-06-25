@@ -15,8 +15,15 @@ class Client {
   final Scoring scoring;
 
   /// Numéros téléphoniques détenus par le client.
-  /// Chaque numéro porte ses propres contrats, conso, OM, etc.
+  /// Porte uniquement Mobile + Orange Money (Fibre/TV sont au niveau client).
   final List<Numero> numeros;
+
+  /// Abonnements Fibre / Internet / Fixe — indépendants des numéros mobiles.
+  /// Plusieurs possibles (ex : domicile + bureau).
+  final List<AbonnementFibre> abonnementsFibre;
+
+  /// Abonnements Orange TV — indépendants des numéros mobiles.
+  final List<AbonnementTv> abonnementsTv;
 
   final Facturation? facturation;
   final List<Interaction> dernieresInteractions;
@@ -35,6 +42,8 @@ class Client {
     required this.numeros,
     required this.dernieresInteractions,
     required this.ia,
+    this.abonnementsFibre = const [],
+    this.abonnementsTv = const [],
     this.facturation,
     this.vip = false,
     this.blacklist = false,
@@ -69,27 +78,28 @@ class Client {
       numeros.where((n) => n.supporte(service)).toList();
 }
 
-/// Familles de services exposées dans la Vue 360.
-enum NumeroService { mobile, fixeInternet, orangeMoney }
+/// Familles de services portées par un numéro.
+/// Fibre/TV ne sont plus listés ici : ce sont des abonnements client.
+enum NumeroService { mobile, orangeMoney }
 
-/// Un numéro de téléphone du client + tous ses rattachements de services.
+/// Un numéro de téléphone du client (Mobile / Orange Money).
 class Numero {
   /// Format affiché — ex "+225 07 04 05 02 03".
   final String numero;
 
-  /// Libellé optionnel — ex "Domicile", "Bureau", "Principal".
+  /// Libellé optionnel — ex "Principale", "Pro", "Secondaire".
   final String? libelle;
 
-  /// Contrats rattachés à ce numéro (Mobile / Fibre / Internet / Fixe / TV / OM).
+  /// Contrats rattachés à ce numéro (Mobile / OrangeMoney uniquement).
   final List<Contrat> contrats;
 
   /// Consommation Mobile attachée à ce numéro (null si pas de Mobile).
   final Consommation? consommation;
 
-  /// Prochaine échéance d'abonnement (postpayé / fibre / TV).
+  /// Prochaine échéance d'abonnement Mobile postpayé.
   final EcheanceAbonnement? echeanceAbonnement;
 
-  /// Dernières factures liées au numéro (max ~4).
+  /// Dernières factures Mobile liées au numéro (max ~4).
   final List<FactureRecente> factures;
 
   /// Compte Orange Money ou Orange Banque associé (null sinon).
@@ -106,30 +116,89 @@ class Numero {
   });
 
   bool get hasMobile => contrats.any((c) => c.service == 'Mobile');
-  bool get hasFixeOuInternet => contrats.any((c) =>
-      c.service == 'Fixe' ||
-      c.service == 'Internet' ||
-      c.service == 'Fibre' ||
-      c.service == 'OrangeTV');
   bool get hasOM => compteOM != null;
 
   bool supporte(NumeroService s) {
     switch (s) {
       case NumeroService.mobile:
         return hasMobile;
-      case NumeroService.fixeInternet:
-        return hasFixeOuInternet;
       case NumeroService.orangeMoney:
         return hasOM;
     }
   }
 }
 
+/// Abonnement Fibre / Internet / Fixe — niveau client, pas niveau numéro.
+/// Un client peut en avoir plusieurs (ex : domicile + bureau).
+class AbonnementFibre {
+  /// Identifiant contrat (ex "CTR-FIB-90041").
+  final String id;
+
+  /// Adresse / site couvert (ex "Domicile - Cocody", "Bureau - Plateau").
+  final String adresse;
+
+  /// Offre commerciale (ex "Fibre 500 Mbps + TV", "ADSL Essentiel 20 Mb/s").
+  final String offre;
+
+  /// Statut (Actif | Suspendu | Résilié).
+  final String statut;
+
+  /// Numéro de ligne fixe associé (optionnel, ex "+225 27 22 49 80 11").
+  final String? numeroFixe;
+
+  /// Détails techniques (équipement, débit, dispo, état, incident…).
+  final FixeInternetDetails details;
+
+  /// Prochain renouvellement (null si pas applicable).
+  final DateTime? renouvellement;
+
+  /// Montant mensuel facturé (0 si non communiqué).
+  final int montantMensuelFcfa;
+
+  /// Dernières factures Fibre/Internet/Fixe.
+  final List<FactureRecente> factures;
+
+  const AbonnementFibre({
+    required this.id,
+    required this.adresse,
+    required this.offre,
+    required this.details,
+    this.statut = 'Actif',
+    this.numeroFixe,
+    this.renouvellement,
+    this.montantMensuelFcfa = 0,
+    this.factures = const [],
+  });
+}
+
+/// Abonnement Orange TV — niveau client, pas niveau numéro.
+class AbonnementTv {
+  /// Identifiant contrat OTV (ex "CTR-TV-09812").
+  final String id;
+
+  /// Adresse / site où le décodeur est installé.
+  final String adresse;
+
+  /// Détails de l'abonnement (compte, pack, équipement, bouquets, options…).
+  final OrangeTvDetails details;
+
+  /// Dernières factures TV.
+  final List<FactureRecente> factures;
+
+  const AbonnementTv({
+    required this.id,
+    required this.adresse,
+    required this.details,
+    this.factures = const [],
+  });
+}
+
 class Scoring {
   final String qualitePayeur; // "Excellent" | "Bon" | "Risque"
   final String segmentValeur; // "Gold" | "Silver" | "Bronze"
-  final int csi; // 0-100
+  final int csi; // 0-100 (réutilisé comme "Score valeur" dans la carte Scoring)
   final int nps; // -100..100
+  final double satisfaction; // 0-5
   final DateTime? dernierPassageBoutique;
 
   const Scoring({
@@ -137,6 +206,7 @@ class Scoring {
     required this.segmentValeur,
     required this.csi,
     required this.nps,
+    this.satisfaction = 4.0,
     this.dernierPassageBoutique,
   });
 }
@@ -147,7 +217,12 @@ class Consommation {
   final double dataTotaleGo;
   final DateTime? dataExpiration;
   final int smsRestants;
-  final List<String> passActifs;
+  // Quota mensuel SMS du forfait (0 si non applicable / illimité géré côté UI).
+  final int smsTotaux;
+  // Voix en minutes : ce qui reste / quota mensuel du forfait.
+  final int voixMinRestantes;
+  final int voixMinTotales;
+  final List<PassActif> passActifs;
   final Map<String, double> consoParMois; // {"M-1": .., "M": ..}
 
   const Consommation({
@@ -158,6 +233,40 @@ class Consommation {
     required this.passActifs,
     required this.consoParMois,
     this.dataExpiration,
+    this.smsTotaux = 0,
+    this.voixMinRestantes = 0,
+    this.voixMinTotales = 0,
+  });
+}
+
+/// Type d'usage couvert par le pass — sert à le rattacher à la jauge
+/// correspondante (Data / Voix / SMS) dans la carte Mobile.
+enum PassType { data, voix, sms }
+
+/// Pass / option actif sur la ligne Mobile : nom, avantages courts,
+/// date d'expiration. Reprend le modèle vu côté web (popover « Pass actifs »).
+class PassActif {
+  /// Libellé commercial (ex "Pass Internet Jour 1Go").
+  final String nom;
+
+  /// Avantages condensés en une ligne (ex "1 Go internet · Réseaux sociaux illimités").
+  final String avantages;
+
+  /// Date d'expiration / fin de validité.
+  final DateTime expiration;
+
+  /// Type principal d'usage couvert (data / voix / sms).
+  final PassType type;
+
+  /// Prix payé (FCFA) si on veut l'afficher (0 = non communiqué).
+  final int prixFcfa;
+
+  const PassActif({
+    required this.nom,
+    required this.avantages,
+    required this.expiration,
+    required this.type,
+    this.prixFcfa = 0,
   });
 }
 
@@ -172,6 +281,86 @@ class Contrat {
     required this.service,
     required this.statut,
     required this.offre,
+  });
+}
+
+/// Détails techniques d'un accès Fixe / Fibre / Internet.
+class FixeInternetDetails {
+  /// "Box Orange Fibre", "Livebox 6", "Modem ADSL"…
+  final String equipement;
+
+  /// "FTTH", "ADSL", "VDSL"…
+  final String techno;
+
+  /// Débit descendant en Mb/s.
+  final int debitDescendantMbps;
+
+  /// Débit montant en Mb/s.
+  final int debitMontantMbps;
+
+  /// Disponibilité du service sur 30 j en %.
+  final double dispoPct;
+
+  /// true si la box est en ligne.
+  final bool connectee;
+
+  /// Libellé d'un incident en cours (null si aucun).
+  final String? incidentEnCours;
+
+  const FixeInternetDetails({
+    required this.equipement,
+    required this.techno,
+    required this.debitDescendantMbps,
+    required this.debitMontantMbps,
+    required this.dispoPct,
+    this.connectee = true,
+    this.incidentEnCours,
+  });
+}
+
+/// Détails de l'abonnement Orange TV (équivalent du `contratDetails.otv` côté web).
+class OrangeTvDetails {
+  /// N° de compte / contrat OTV (ex "OTV-CI-001205").
+  final String compte;
+
+  /// Pack souscrit (ex "Pack Famille", "Pack Premium").
+  final String pack;
+
+  /// Équipement (ex "Décodeur HD", "Box TV 4K").
+  final String equipement;
+
+  /// Dernière connexion détectée (null si jamais).
+  final DateTime? derniereConnexion;
+
+  /// Bouquets inclus (ex ["Jeunesse", "Généralistes", "Sport AFCON"]).
+  final List<String> bouquets;
+
+  /// Options activées (ex ["Multi-écran", "TV Replay", "Enregistrement"]).
+  final List<String> options;
+
+  /// Nombre total de chaînes incluses dans le pack (0 = non communiqué).
+  final int nbChaines;
+
+  /// Abonnement mensuel en FCFA (0 = non communiqué).
+  final int prixMensuelFcfa;
+
+  /// Date d'installation initiale du décodeur.
+  final DateTime? dateInstallation;
+
+  /// Statut (Actif | Suspendu | Résilié).
+  final String statut;
+
+  const OrangeTvDetails({
+    required this.compte,
+    required this.pack,
+    required this.equipement,
+    required this.bouquets,
+    this.options = const [],
+    this.nbChaines = 0,
+    this.prixMensuelFcfa = 0,
+    this.derniereConnexion,
+    this.dateInstallation,
+    this.statut = 'Actif',
   });
 }
 
@@ -228,12 +417,15 @@ class Interaction {
   final DateTime date;
   final String statut; // Ouvert | Résolu | En cours
   final String resume;
+  // Canal d'entrée — ex "Call Center — Voix", "Selfcare", "Dimelo".
+  final String canal;
 
   const Interaction({
     required this.type,
     required this.date,
     required this.statut,
     required this.resume,
+    this.canal = '',
   });
 }
 
