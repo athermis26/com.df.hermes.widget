@@ -30,7 +30,7 @@
 
 ### 1. Le format
 
-> « D'abord, regardez la taille — c'est volontaire. Le widget reste collé au bord de l'écran, vous gardez vos outils métier à côté. Notre philosophie c'est : **léger au max, jamais intrusif**. »
+> « D'abord, regardez la taille — c'est volontaire. Le widget reste collé au bord de l'écran, vous gardez vos outils métier à côté. Headers noirs, logo Orange master, thème sombre par défaut (commutable en clair) : on assume une identité Orange forte sans agresser l'œil sur 8 heures de poste. Notre philosophie : **léger au max, jamais intrusif**. »
 
 ### 2. La file d'attente
 
@@ -38,11 +38,12 @@
 
 ### 3. La Vue 360 client *(le cœur)*
 
-> « Voici ce qu'on appelle la Vue 360. Tout ce qu'il faut savoir sur le client, en une page scrollable :
+> « Voici ce qu'on appelle la Vue 360. Tout ce qu'il faut savoir sur le client, structuré en univers métier :
 >
 > - **L'en-tête** : nom, segment, VIP, et un timer DMT qui passe au vert/orange/rouge.
 > - **Si le client a déjà appelé aujourd'hui**, un bandeau rouge vous prévient — fini les clients qui répètent leur histoire à 3 conseillers différents.
-> - **4 onglets** pour structurer l'info : **Mobile** avec la conso, les passes et le crédit ; **Internet & Fixe** avec contrats, état réseau temps réel, et la dernière facture ; **Orange Money** avec solde, transactions et Visa virtuelle ; et **Cases** — le dossier complet du client. »
+> - **Une barre de chips juste en dessous** : si le client a plusieurs lignes (mobile, fixe, Orange Money…), un clic change le contexte de l'onglet courant. Pas besoin de naviguer entre 3 fiches.
+> - **5 onglets univers** pour structurer l'info : **Data Mobile** (conso, passes, crédit, dernières recharges), **Orange Money** (solde, transactions, Visa virtuelle, plafonds), **Fixe & Internet** (contrats, état réseau temps réel, dernière facture, équipement), **TV** (bouquet, décodeur, dernier paiement) et **Cases** — le dossier complet du client. »
 
 ### 4. L'onglet Cases
 
@@ -56,7 +57,11 @@
 
 > « Et derrière tout ça, un assistant IA qui vous aide à qualifier le case, suggère la corbeille de destination, prépare le résumé — vous validez, c'est créé. »
 
-### 7. Notifications + Recherche
+### 7. Le Chat communautaire
+
+> « Nouveauté : un onglet **Chat** intégré au widget. Plusieurs canaux par métier (escalade N2, supervision, retours terrain), des messages qui arrivent en direct. Plus besoin d'ouvrir Teams pour demander un coup de main à un collègue pendant l'appel. »
+
+### 8. Notifications + Recherche
 
 > « Tout en haut, une recherche persistante (numéro, ID client, case). Et l'onglet notifications qui pousse les SLA à risque, les cases assignés, les retours en file. »
 
@@ -88,7 +93,7 @@
 | *« Et la sécurité ? »* | Authentification SSO Orange, pas de données stockées localement, audit log côté superviseur. |
 | *« Et si l'IA se trompe ? »* | Le conseiller valide toujours. L'IA propose, l'humain décide. |
 | *« Compatibilité ? »* | Windows desktop, intégration native avec les outils Orange existants. |
-| *« Roadmap ? »* | Code Connect avec la Vue 360 web, mode offline pour les agences, voice-to-text sur les appels. |
+| *« Roadmap ? »* | Code Connect avec la Vue 360 web, mode offline pour les agences, voice-to-text sur les appels, intégration chat ↔ Teams. |
 
 ---
 
