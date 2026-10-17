@@ -1,34 +1,21 @@
 import 'package:flutter/foundation.dart';
 
-/// Routes possibles dans le panneau (hors écran de login).
-/// La Vue 360 n'est pas une route à part : elle s'affiche dans la route
-/// `file` quand un ticket est sélectionné (TicketSelection.current != null).
-enum PanelRoute { file, assistant }
+/// Routes affichées par la BottomNavigation du panneau.
+enum PanelRoute { queue, vue360, assistant, chat }
 
-/// Navigation en pile pour le panneau. Plus de bottom-nav : on push/pop
-/// au besoin (Assistant ouvert depuis une card ou depuis la Vue 360).
+/// Sélection de l'onglet courant. Plus de pile : la BottomNav est
+/// l'unique point de navigation entre les 4 vues principales.
 class PanelNav {
   PanelNav._();
   static final instance = PanelNav._();
 
-  final ValueNotifier<List<PanelRoute>> stack =
-      ValueNotifier<List<PanelRoute>>([PanelRoute.file]);
+  final ValueNotifier<PanelRoute> current =
+      ValueNotifier<PanelRoute>(PanelRoute.queue);
 
-  PanelRoute get current => stack.value.last;
-  bool get canPop => stack.value.length > 1;
-
-  void push(PanelRoute r) {
-    if (current == r) return;
-    stack.value = [...stack.value, r];
+  void go(PanelRoute r) {
+    if (current.value == r) return;
+    current.value = r;
   }
 
-  bool pop() {
-    if (!canPop) return false;
-    stack.value = stack.value.sublist(0, stack.value.length - 1);
-    return true;
-  }
-
-  void reset() {
-    stack.value = [PanelRoute.file];
-  }
+  void reset() => go(PanelRoute.queue);
 }

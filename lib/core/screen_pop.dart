@@ -8,7 +8,6 @@ import '../models/client.dart';
 import '../widgets/incoming_call_dialog.dart';
 import 'client_selection.dart';
 import 'conseiller_state.dart';
-import 'panel_nav.dart';
 import 'window_controller.dart';
 
 /// Simule un screen-pop comme s'il était poussé par Genesys / Dimelo :
@@ -52,7 +51,6 @@ class ScreenPop {
       if (accepted == true) {
         ClientSelection.instance.select(client);
         ConseillerState.instance.demarrerPriseEnCharge();
-        PanelNav.instance.reset();
       }
     } finally {
       _open = false;

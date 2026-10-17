@@ -39,14 +39,15 @@ extension TicketMotifX on TicketMotif {
 }
 
 extension TicketPriorityX on TicketPriority {
+  // Aligné sur HERMÈS web : Critique / Haute / Moyenne / Faible.
   String get label {
     switch (this) {
       case TicketPriority.urgent:
-        return 'Urgent';
+        return 'Critique';
       case TicketPriority.eleve:
-        return 'Élevée';
+        return 'Haute';
       case TicketPriority.normal:
-        return 'Normale';
+        return 'Moyenne';
       case TicketPriority.faible:
         return 'Faible';
     }
@@ -54,7 +55,7 @@ extension TicketPriorityX on TicketPriority {
 }
 
 /// Source d'un ticket Digital (email / WhatsApp / Facebook…).
-enum TicketSource { telephone, email, whatsapp, facebook, twitter, accueil }
+enum TicketSource { telephone, email, whatsapp, facebook, twitter, telegram, accueil }
 
 class Ticket {
   final String id;

@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import '../core/app_icons.dart';
 import '../core/client_selection.dart';
 import '../core/formatters.dart';
-import '../core/panel_nav.dart';
 import '../core/theme/app_colors.dart';
 import '../mock/mock_data.dart';
 import '../models/notification.dart';
 import 'hi.dart';
+import '../core/theme/theme_controller.dart';
 
 /// Popover affiché sous la cloche du header.
 /// Remplace l'onglet « Activité » : tout passe par cet overlay.
@@ -49,7 +49,6 @@ class _NotificationsPopoverState extends State<NotificationsPopover> {
       try {
         final c = mockClients.firstWhere((c) => c.id == n.clientIdLie);
         ClientSelection.instance.select(c);
-        PanelNav.instance.reset(); // file → affichera la Vue 360 du client
       } catch (_) {}
     }
     widget.onClose();
@@ -62,7 +61,7 @@ class _NotificationsPopoverState extends State<NotificationsPopover> {
       child: Container(
         constraints: const BoxConstraints(maxHeight: 320),
         decoration: BoxDecoration(
-          color: AppColors.dark,
+          color: P.bg,
           border: Border.all(color: Colors.white12),
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
@@ -82,11 +81,11 @@ class _NotificationsPopoverState extends State<NotificationsPopover> {
                 children: [
                   const Hi(AppIcons.tabNotifs, size: 14, color: AppColors.primary),
                   const SizedBox(width: 6),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Vos notifications',
+                      'Notifications',
                       style: TextStyle(
-                        color: AppColors.textLight,
+                        color: P.text,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
@@ -95,9 +94,9 @@ class _NotificationsPopoverState extends State<NotificationsPopover> {
                   InkWell(
                     onTap: widget.onClose,
                     borderRadius: BorderRadius.circular(4),
-                    child: const Padding(
+                    child: Padding(
                       padding: EdgeInsets.all(4),
-                      child: Hi(AppIcons.close, size: 12, color: AppColors.textMuted),
+                      child: Hi(AppIcons.close, size: 12, color: P.muted),
                     ),
                   ),
                 ],
@@ -106,11 +105,11 @@ class _NotificationsPopoverState extends State<NotificationsPopover> {
             const Divider(height: 1, color: Colors.white10),
             Flexible(
               child: _notifs.isEmpty
-                  ? const Padding(
+                  ? Padding(
                       padding: EdgeInsets.all(20),
                       child: Text(
                         'Rien à signaler.',
-                        style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                        style: TextStyle(color: P.muted, fontSize: 11),
                       ),
                     )
                   : ListView.separated(
@@ -148,7 +147,7 @@ class _NotifRow extends StatelessWidget {
       case NotifType.retourFile:
         return (icon: AppIcons.retour, color: AppColors.warning);
       case NotifType.info:
-        return (icon: AppIcons.info, color: AppColors.textMuted);
+        return (icon: AppIcons.info, color: P.muted);
     }
   }
 
@@ -181,7 +180,7 @@ class _NotifRow extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.danger,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.dark, width: 1.5),
+                        border: Border.all(color: P.bg, width: 1.5),
                       ),
                     ),
                   ),
@@ -200,7 +199,7 @@ class _NotifRow extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: AppColors.textLight,
+                            color: P.text,
                             fontSize: 11.5,
                             fontWeight: n.lue ? FontWeight.w500 : FontWeight.w700,
                           ),
@@ -208,7 +207,7 @@ class _NotifRow extends StatelessWidget {
                       ),
                       Text(
                         formatDateHeure(n.date),
-                        style: const TextStyle(color: AppColors.textMuted, fontSize: 9.5),
+                        style: TextStyle(color: P.muted, fontSize: 9.5),
                       ),
                     ],
                   ),
@@ -217,7 +216,7 @@ class _NotifRow extends StatelessWidget {
                     n.message,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+                    style: TextStyle(color: P.muted, fontSize: 10),
                   ),
                 ],
               ),

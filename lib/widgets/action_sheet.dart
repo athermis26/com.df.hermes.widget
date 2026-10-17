@@ -7,6 +7,7 @@ import '../core/theme/app_colors.dart';
 import '../models/client.dart';
 import '../models/quick_action.dart';
 import 'hi.dart';
+import '../core/theme/theme_controller.dart';
 
 /// Bottom sheet de confirmation + simulation d'une [QuickAction].
 /// Réutilisable depuis l'onglet Actions ou une card de ticket.
@@ -56,15 +57,15 @@ class _ActionSheetState extends State<ActionSheet> {
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: AppColors.darkSurface,
+        backgroundColor: P.surface,
         duration: const Duration(seconds: 3),
         content: Row(
           children: [
             const Hi(AppIcons.openExternal, color: AppColors.primary, size: 16),
             const SizedBox(width: 8),
             Expanded(
-              child: Text('Direction HERMES web : $url',
-                  style: const TextStyle(color: AppColors.textLight, fontSize: 12)),
+              child: Text('Direction HERMÈS web : $url',
+                  style: TextStyle(color: P.text, fontSize: 12)),
             ),
           ],
         ),
@@ -75,8 +76,8 @@ class _ActionSheetState extends State<ActionSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.dark,
+      decoration: BoxDecoration(
+        color: P.bg,
         borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
         border: Border(
           top: BorderSide(color: Colors.white12),
@@ -125,15 +126,15 @@ class _ActionSheetState extends State<ActionSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(widget.action.label,
-                  style: const TextStyle(
-                      color: AppColors.textLight,
+                  style: TextStyle(
+                      color: P.text,
                       fontSize: 13,
                       fontWeight: FontWeight.w700)),
               if (widget.client != null) ...[
                 const SizedBox(height: 2),
                 Text(
                   'Pour ${widget.client!.nom} · ${widget.client!.numeroPrincipal}',
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5),
+                  style: TextStyle(color: P.muted, fontSize: 10.5),
                 ),
               ],
             ],
@@ -147,10 +148,10 @@ class _ActionSheetState extends State<ActionSheet> {
     switch (_state) {
       case _SheetState.confirmation:
         return Text(widget.action.description,
-            style: const TextStyle(
-                color: AppColors.textMuted, fontSize: 11.5, height: 1.4));
+            style: TextStyle(
+                color: P.muted, fontSize: 11.5, height: 1.4));
       case _SheetState.running:
-        return const Padding(
+        return Padding(
           padding: EdgeInsets.symmetric(vertical: 10),
           child: Row(
             children: [
@@ -160,7 +161,7 @@ class _ActionSheetState extends State<ActionSheet> {
               ),
               SizedBox(width: 10),
               Text('Un instant, on s\'en occupe…',
-                  style: TextStyle(color: AppColors.textLight, fontSize: 12)),
+                  style: TextStyle(color: P.text, fontSize: 12)),
             ],
           ),
         );
@@ -185,7 +186,7 @@ class _ActionSheetState extends State<ActionSheet> {
             child: OutlinedButton(
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.textMuted,
+                  foregroundColor: P.muted,
                   side: const BorderSide(color: Colors.white24)),
               child: const Text('Plus tard', style: TextStyle(fontSize: 12)),
             ),
@@ -196,7 +197,7 @@ class _ActionSheetState extends State<ActionSheet> {
             child: ElevatedButton.icon(
               onPressed: _openInHermes,
               icon: const Hi(AppIcons.openExternal, size: 14, color: Colors.black),
-              label: const Text('Continuer sur HERMES',
+              label: const Text('Continuer sur HERMÈS',
                   style: TextStyle(fontSize: 11.5)),
               style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.warning,
@@ -214,7 +215,7 @@ class _ActionSheetState extends State<ActionSheet> {
               child: OutlinedButton(
                 onPressed: () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textMuted,
+                    foregroundColor: P.muted,
                     side: const BorderSide(color: Colors.white24)),
                 child: const Text('Pas maintenant', style: TextStyle(fontSize: 12)),
               ),
@@ -253,7 +254,7 @@ class _ActionSheetState extends State<ActionSheet> {
               child: OutlinedButton(
                 onPressed: () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textMuted,
+                    foregroundColor: P.muted,
                     side: const BorderSide(color: Colors.white24)),
                 child: const Text('Laisser tomber', style: TextStyle(fontSize: 12)),
               ),

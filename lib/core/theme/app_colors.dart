@@ -18,12 +18,12 @@ class AppColors {
   static const Color info = Color(0xFF4BB4E6);
 
   // Anciennes valeurs conservées pour compat
-  static const Color firstLineaColor = Color(0xFFFFA576);
-  static const Color secondLineaColor = Color(0xFFFFCBAF);
-  static const Color thirdLineaColor = Color(0xFFFFE0CF);
+  static const Color firstLineaColor = Color(0xFFFF7900);
+  static const Color secondLineaColor = Color(0xFFFF7900);
+  static const Color thirdLineaColor = Color(0xFFFF7900);
 
   static const Gradient primaryGradient = LinearGradient(
-    colors: [Color(0xFFFF7900), Color(0xFFFF9A3D)],
+    colors: [Color(0xFFFF7900), Color(0xFFFF7900)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

@@ -13,7 +13,9 @@ import '../../models/conseiller.dart';
 import '../../models/ticket.dart';
 import '../../widgets/hi.dart';
 import '../../widgets/motif_actions_sheet.dart';
+import '../../widgets/motif_tag.dart';
 import '../../widgets/transfer_sheet.dart';
+import '../../core/theme/theme_controller.dart';
 
 /// Strings et icônes qui varient selon le profil du conseiller.
 class _ProfilUi {
@@ -43,49 +45,49 @@ class _ProfilUi {
     switch (p) {
       case ProfilConseiller.callCenter:
         return const _ProfilUi(
-          fileLabel: 'Votre file',
-          emptyLabel: 'File vide, bravo !',
-          unitOne: 'ticket',
-          unitMany: 'tickets',
-          nextLabel: 'Prendre le suivant',
-          takeLabel: 'Prendre',
-          activeLabel: 'En ligne avec',
+          fileLabel: 'Corbeille appels',
+          emptyLabel: 'File vide — aucun client en attente',
+          unitOne: 'interaction',
+          unitMany: 'interactions',
+          nextLabel: 'Appeler le suivant',
+          takeLabel: 'Décrocher',
+          activeLabel: 'Interaction en cours avec',
           icon: AppIcons.queue,
           showCallChrono: true,
         );
       case ProfilConseiller.agence:
         return const _ProfilUi(
-          fileLabel: 'Salle d\'attente agence',
-          emptyLabel: 'Personne en attente.',
+          fileLabel: 'Corbeille agence',
+          emptyLabel: 'Aucun client en agence pour le moment',
           unitOne: 'client',
           unitMany: 'clients',
           nextLabel: 'Appeler le suivant',
-          takeLabel: 'Recevoir',
-          activeLabel: 'Au guichet avec',
+          takeLabel: 'Prendre en charge',
+          activeLabel: 'Interaction en cours avec',
           icon: AppIcons.queue,
           showCallChrono: true,
         );
       case ProfilConseiller.digital:
         return const _ProfilUi(
-          fileLabel: 'Vos messages',
-          emptyLabel: 'Boîte vide.',
+          fileLabel: 'Corbeille digitale',
+          emptyLabel: 'Aucune interaction en attente — vous êtes disponible',
           unitOne: 'message',
           unitMany: 'messages',
-          nextLabel: 'Traiter le suivant',
-          takeLabel: 'Répondre',
-          activeLabel: 'En conversation avec',
+          nextLabel: 'Prendre le suivant',
+          takeLabel: 'Prendre en charge',
+          activeLabel: 'Interaction en cours avec',
           icon: AppIcons.tabNotifs,
           showCallChrono: false,
         );
       case ProfilConseiller.superviseur:
         return const _ProfilUi(
-          fileLabel: 'Vue superviseur',
-          emptyLabel: 'Aucun ticket en file',
-          unitOne: 'ticket',
-          unitMany: 'tickets',
+          fileLabel: 'Toutes corbeilles',
+          emptyLabel: 'Aucun case en attente',
+          unitOne: 'case',
+          unitMany: 'cases',
           nextLabel: 'Prendre le suivant',
-          takeLabel: 'Prendre',
-          activeLabel: 'En traitement de',
+          takeLabel: 'Prendre en charge',
+          activeLabel: 'Interaction en cours avec',
           icon: AppIcons.queue,
           showCallChrono: true,
         );
@@ -149,7 +151,10 @@ class _QueueTabState extends State<QueueTab> {
     _prendre(_tickets.first);
   }
 
-  void _voirFiche(Ticket t) => TicketSelection.instance.select(t);
+  void _voirFiche(Ticket t) {
+    TicketSelection.instance.select(t);
+    PanelNav.instance.go(PanelRoute.vue360);
+  }
 
   void _raccrocher() {
     final t = ConseillerState.instance.activeTicket.value;
@@ -163,7 +168,7 @@ class _QueueTabState extends State<QueueTab> {
 
   void _openAi(Ticket t) {
     TicketSelection.instance.select(t);
-    PanelNav.instance.push(PanelRoute.assistant);
+    PanelNav.instance.go(PanelRoute.assistant);
   }
 
   void _showMotifActions(Ticket t) => MotifActionsSheet.show(context, t);
@@ -222,7 +227,7 @@ class _QueueTabState extends State<QueueTab> {
 ({AppIcon icon, Color color, String label}) sourceMeta(TicketSource s) {
   switch (s) {
     case TicketSource.telephone:
-      return (icon: AppIcons.sourcePhone, color: AppColors.primary, label: 'Téléphone');
+      return (icon: AppIcons.sourcePhone, color: AppColors.primary, label: 'Appel entrant');
     case TicketSource.email:
       return (icon: AppIcons.sourceEmail, color: AppColors.info, label: 'Email');
     case TicketSource.whatsapp:
@@ -230,9 +235,11 @@ class _QueueTabState extends State<QueueTab> {
     case TicketSource.facebook:
       return (icon: AppIcons.sourceFacebook, color: AppColors.info, label: 'Facebook');
     case TicketSource.twitter:
-      return (icon: AppIcons.sourceTwitter, color: AppColors.textLight, label: 'Twitter');
+      return (icon: AppIcons.sourceTwitter, color: P.text, label: 'Twitter');
+    case TicketSource.telegram:
+      return (icon: AppIcons.sourceTelegram, color: AppColors.info, label: 'Telegram');
     case TicketSource.accueil:
-      return (icon: AppIcons.sourceAccueil, color: AppColors.primary, label: 'Accueil');
+      return (icon: AppIcons.sourceAccueil, color: AppColors.primary, label: 'Agence physique');
   }
 }
 
@@ -254,8 +261,8 @@ class _QueueHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
-      decoration: const BoxDecoration(
-        color: AppColors.darkSurface,
+      decoration: BoxDecoration(
+        color: P.surface,
         border: Border(bottom: BorderSide(color: Colors.white10)),
       ),
       child: Row(
@@ -267,13 +274,13 @@ class _QueueHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(ui.fileLabel,
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 10.5)),
+                    style: TextStyle(color: P.muted, fontSize: 10.5)),
                 Text(
                   count == 0
                       ? ui.emptyLabel
                       : '$count ${count > 1 ? ui.unitMany : ui.unitOne} en attente',
-                  style: const TextStyle(
-                    color: AppColors.textLight,
+                  style: TextStyle(
+                    color: P.text,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
@@ -290,8 +297,8 @@ class _QueueHeader extends StatelessWidget {
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              disabledBackgroundColor: AppColors.darkSurface,
-              disabledForegroundColor: AppColors.textMuted,
+              disabledBackgroundColor: P.surface,
+              disabledForegroundColor: P.muted,
             ),
           ),
         ],
@@ -351,17 +358,16 @@ class _ActiveCallBanner extends StatelessWidget {
                       '${ui.activeLabel} ${ticket.client.nom}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textLight,
+                      style: TextStyle(
+                        color: P.text,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 1),
-                    Text(
-                      ticket.motif.label,
-                      style: const TextStyle(
-                          color: AppColors.textMuted, fontSize: 10.5),
+                    const SizedBox(height: 3),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: MotifTag(label: ticket.motif.label, dense: true),
                     ),
                   ],
                 ),
@@ -387,7 +393,7 @@ class _ActiveCallBanner extends StatelessWidget {
               IconButton(
                 tooltip: 'Clôturer',
                 onPressed: onRaccrocher,
-                icon: const Hi(AppIcons.callReject, size: 18, color: AppColors.danger),
+                icon: const Hi(AppIcons.cloturer, size: 18, color: AppColors.danger),
                 padding: const EdgeInsets.all(4),
                 constraints: const BoxConstraints(),
               ),
@@ -427,16 +433,19 @@ class _TicketCard extends StatefulWidget {
 class _TicketCardState extends State<_TicketCard> {
   bool _hovered = false;
 
-  ({Color color, String label}) _prioMeta(TicketPriority p) {
+  ({Color color, String label}) _prioMeta(TicketPriority p) =>
+      (color: _prioColor(p), label: p.label);
+
+  Color _prioColor(TicketPriority p) {
     switch (p) {
       case TicketPriority.urgent:
-        return (color: AppColors.danger, label: 'Urgent');
+        return AppColors.danger; // Critique
       case TicketPriority.eleve:
-        return (color: AppColors.warning, label: 'Élevée');
+        return AppColors.warning; // Haute
       case TicketPriority.normal:
-        return (color: AppColors.info, label: 'Normale');
+        return AppColors.info; // Moyenne
       case TicketPriority.faible:
-        return (color: AppColors.textMuted, label: 'Faible');
+        return P.muted; // Faible
     }
   }
 
@@ -456,15 +465,19 @@ class _TicketCardState extends State<_TicketCard> {
     final waiting = DateTime.now().difference(ticket.createdAt);
     final waitingColor = waiting.inMinutes >= 10
         ? AppColors.danger
-        : (waiting.inMinutes >= 5 ? AppColors.warning : AppColors.textMuted);
+        : (waiting.inMinutes >= 5 ? AppColors.warning : P.muted);
     final showSource =
         ticket.source != TicketSource.telephone && ticket.source != TicketSource.accueil;
 
-    return MouseRegion(
+    return LayoutBuilder(builder: (context, c) {
+      // Évite les RenderFlex overflow lorsque le panel se réduit
+      // (transition vers la bulle, fenêtre minimisée, etc.).
+      if (c.maxWidth < 220) return const SizedBox.shrink();
+      return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: Material(
-        color: AppColors.darkSurface,
+        color: P.surface,
         borderRadius: BorderRadius.circular(10),
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
@@ -493,15 +506,15 @@ class _TicketCardState extends State<_TicketCard> {
                         ),
                         if (showSource)
                           Positioned(
-                            right: -3, bottom: -3,
+                            right: -12, bottom: -8,
                             child: Container(
-                              padding: const EdgeInsets.all(2),
+                              padding: const EdgeInsets.all(3),
                               decoration: BoxDecoration(
-                                color: AppColors.darkSurface,
+                                color: P.surface,
                                 shape: BoxShape.circle,
-                                border: Border.all(color: AppColors.dark, width: 1),
+                                border: Border.all(color: P.bg, width: 1),
                               ),
-                              child: Hi(source.icon, size: 9, color: source.color),
+                              child: Hi(source.icon, size: 14, color: source.color),
                             ),
                           ),
                       ],
@@ -518,8 +531,8 @@ class _TicketCardState extends State<_TicketCard> {
                                   client.nom,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: AppColors.textLight,
+                                  style: TextStyle(
+                                    color: P.text,
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -537,14 +550,28 @@ class _TicketCardState extends State<_TicketCard> {
                           Row(
                             children: [
                               Flexible(
-                                child: Text(
-                                  showSource
-                                      ? '${source.label} · ${ticket.id}'
-                                      : '${client.numeroPrincipal} · ${ticket.id}',
+                                child: Text.rich(
+                                  TextSpan(
+                                    style: TextStyle(
+                                        color: P.muted, fontSize: 12),
+                                    children: [
+                                      TextSpan(
+                                        text: showSource
+                                            ? source.label
+                                            : client.numeroPrincipal,
+                                      ),
+                                      const TextSpan(text: ' · '),
+                                      TextSpan(
+                                        text: ticket.id,
+                                        style: TextStyle(
+                                          color: P.text,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                      color: AppColors.textMuted, fontSize: 10),
                                 ),
                               ),
                             ],
@@ -557,22 +584,7 @@ class _TicketCardState extends State<_TicketCard> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.12),
-                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        ticket.motif.label,
-                        style: const TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                    Flexible(child: MotifTag(label: ticket.motif.label)),
                     const Spacer(),
                     Hi(AppIcons.dmt, size: 11, color: waitingColor),
                     const SizedBox(width: 3),
@@ -609,7 +621,7 @@ class _TicketCardState extends State<_TicketCard> {
                             _IconAction(
                               icon: AppIcons.sparkle,
                               tooltip: 'Demander à l\'assistant',
-                              color: AppColors.textLight,
+                              color: P.text,
                               onTap: widget.onAi,
                             ),
                             const SizedBox(width: 6),
@@ -624,20 +636,31 @@ class _TicketCardState extends State<_TicketCard> {
                       ),
                     ),
                     const Spacer(),
-                    ElevatedButton.icon(
+                    ElevatedButton(
                       onPressed: widget.agentBusy ? null : widget.onPrendre,
-                      icon: const Hi(AppIcons.callAccept, size: 13, color: Colors.white),
-                      label: Text(widget.ui.takeLabel,
-                          style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         visualDensity: VisualDensity.compact,
-                        disabledBackgroundColor: AppColors.dark,
-                        disabledForegroundColor: AppColors.textMuted,
+                        disabledBackgroundColor: P.bg,
+                        disabledForegroundColor: P.muted,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                    ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // const Hi(AppIcons.callAccept, size: 13, color: Colors.white),
+                          // const SizedBox(width: 8),
+                          Text(
+                            widget.ui.takeLabel,
+                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ],
@@ -646,6 +669,7 @@ class _TicketCardState extends State<_TicketCard> {
         ),
       ),
     );
+    });
   }
 }
 
@@ -716,16 +740,16 @@ class _EmptyQueue extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.textLight,
+              style: TextStyle(
+                color: P.text,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Profitez-en pour souffler.',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+            Text(
+              'Vous êtes disponible.',
+              style: TextStyle(color: P.muted, fontSize: 11),
             ),
           ],
         ),

@@ -7,6 +7,7 @@ import '../core/theme/app_colors.dart';
 import '../models/client.dart';
 import '../repositories/client_repository.dart';
 import 'hi.dart';
+import '../core/theme/theme_controller.dart';
 
 /// Overlay déroulant qui apparaît sous la barre de recherche.
 /// Visible quand `HermesSearch.instance.open == true` ET query non vide.
@@ -24,7 +25,7 @@ class SearchResultsOverlay extends StatelessWidget {
           color: Colors.transparent,
           child: Container(
             decoration: BoxDecoration(
-              color: AppColors.dark,
+              color: P.bg,
               border: const Border(bottom: BorderSide(color: Colors.white12)),
               boxShadow: [
                 BoxShadow(
@@ -89,7 +90,7 @@ class _LoadingRow extends StatelessWidget {
   const _LoadingRow();
   @override
   Widget build(BuildContext context) {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
         children: [
@@ -99,7 +100,7 @@ class _LoadingRow extends StatelessWidget {
           ),
           SizedBox(width: 10),
           Text('Recherche en cours…',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              style: TextStyle(color: P.muted, fontSize: 11)),
         ],
       ),
     );
@@ -115,12 +116,12 @@ class _EmptyRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       child: Row(
         children: [
-          const Hi(AppIcons.searchOff, size: 16, color: AppColors.textMuted),
+          Hi(AppIcons.searchOff, size: 16, color: P.muted),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Personne ne correspond à « $query »',
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+              style: TextStyle(color: P.muted, fontSize: 11),
             ),
           ),
         ],
@@ -159,8 +160,8 @@ class _RestrictionRow extends StatelessWidget {
                         fontWeight: FontWeight.w700)),
                 const SizedBox(height: 2),
                 Text(msg,
-                    style: const TextStyle(
-                        color: AppColors.textMuted, fontSize: 10.5)),
+                    style: TextStyle(
+                        color: P.muted, fontSize: 10.5)),
               ],
             ),
           ),
@@ -209,8 +210,8 @@ class _ResultRow extends StatelessWidget {
                           client.nom,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              color: AppColors.textLight,
+                          style: TextStyle(
+                              color: P.text,
                               fontSize: 12,
                               fontWeight: FontWeight.w600),
                         ),
@@ -223,12 +224,12 @@ class _ResultRow extends StatelessWidget {
                     '${client.numeroPrincipal} · ${client.type} · ${client.segment}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+                    style: TextStyle(color: P.muted, fontSize: 10),
                   ),
                 ],
               ),
             ),
-            const Hi(AppIcons.chevronRight, size: 14, color: AppColors.textMuted),
+            Hi(AppIcons.chevronRight, size: 14, color: P.muted),
           ],
         ),
       ),

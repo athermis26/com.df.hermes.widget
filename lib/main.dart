@@ -8,11 +8,15 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import 'core/helpers.dart';
 import 'core/theme/app_colors.dart';
+import 'core/theme/theme_controller.dart';
 import 'core/window_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
+
+  // Applique la palette en fonction du mode initial (sombre par défaut).
+  ThemeController.instance.apply();
 
   // Lancement au démarrage (best-effort)
   try {
@@ -28,7 +32,6 @@ void main() async {
     debugPrint('launch_at_startup indisponible: $e');
   }
 
-  // Démarre en mode panneau
   final windowOptions = WindowOptions(
     size: HermesWindow.panelSize,
     center: false,
@@ -58,25 +61,34 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      brightness: Brightness.dark,
-      surface: AppColors.dark,
-    );
-    return MaterialApp(
-      title: 'Hermes Widget',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        colorScheme: scheme,
-        scaffoldBackgroundColor: Colors.transparent,
-        textTheme: const TextTheme().apply(
-          bodyColor: AppColors.textLight,
-          displayColor: AppColors.textLight,
-        ),
-      ),
-      home: const HomePage(),
+    return ValueListenableBuilder<bool>(
+      valueListenable: ThemeController.instance.isDark,
+      builder: (_, isDark, _) {
+        final brightness = isDark ? Brightness.dark : Brightness.light;
+        final scheme = ColorScheme.fromSeed(
+          seedColor: AppColors.primary,
+          brightness: brightness,
+          surface: P.bg,
+        );
+        return MaterialApp(
+          // Key liée au mode → force la reconstruction complète à chaque
+          // toggle, garantit la lecture des nouvelles valeurs de P.
+          key: ValueKey('theme-${isDark ? 'dark' : 'light'}'),
+          title: 'Hermes Widget',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            useMaterial3: true,
+            brightness: brightness,
+            colorScheme: scheme,
+            scaffoldBackgroundColor: Colors.transparent,
+            textTheme: TextTheme().apply(
+              bodyColor: P.text,
+              displayColor: P.text,
+            ),
+          ),
+          home: const HomePage(),
+        );
+      },
     );
   }
 }

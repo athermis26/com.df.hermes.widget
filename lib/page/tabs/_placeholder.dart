@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/theme_controller.dart';
 
 /// Placeholder réutilisable par les onglets non encore implémentés.
 class TabPlaceholder extends StatelessWidget {
@@ -26,8 +27,8 @@ class TabPlaceholder extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               title,
-              style: const TextStyle(
-                color: AppColors.textLight,
+              style: TextStyle(
+                color: P.text,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -36,7 +37,7 @@ class TabPlaceholder extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               subtitle,
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+              style: TextStyle(color: P.muted, fontSize: 12),
               textAlign: TextAlign.center,
             ),
           ],
